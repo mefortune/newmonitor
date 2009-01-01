@@ -17,6 +17,8 @@
 #define new DEBUG_NEW
 #endif
 
+#include "include\serialmanager.h"
+
 // CNewMonitorDoc
 
 IMPLEMENT_DYNCREATE(CNewMonitorDoc, CDocument)
@@ -36,6 +38,12 @@ CNewMonitorDoc::~CNewMonitorDoc()
 {
 }
 
+CNewMonitorDoc * CNewMonitorDoc::GetDoc()
+{
+	CFrameWnd * pFrame = (CFrameWnd *)(AfxGetApp()->m_pMainWnd);
+	return (CNewMonitorDoc *)pFrame->GetActiveDocument();
+}
+
 BOOL CNewMonitorDoc::OnNewDocument()
 {
 	if (!CDocument::OnNewDocument())
@@ -43,16 +51,14 @@ BOOL CNewMonitorDoc::OnNewDocument()
 
 	// TODO:  在此添加重新初始化代码
 	// (SDI 文档将重用该文档
+	SerialManager *serial_manager = SerialManager::GetInstance();
+	serial_manager->open("COM4");
+	CString msg;
+	msg.Format(L"ERROR:%d\n", serial_manager->SyncTime());
+	OutputDebugString(msg);
+
 	return TRUE;
 }
-
-CNewMonitorDoc * CNewMonitorDoc::GetDoc()
-{
-	CFrameWnd * pFrame = (CFrameWnd *)(AfxGetApp()->m_pMainWnd);
-	return (CNewMonitorDoc *)pFrame->GetActiveDocument();
-}
-
-
 
 // CNewMonitorDoc 序列化
 

@@ -192,7 +192,8 @@ void AsyncSerial::readEnd(const boost::system::error_code& error,
             doClose();
             setErrorStatus(true);
         }
-    } else {
+    }
+	else {
         if(pimpl->callback) pimpl->callback(pimpl->readBuffer,
                 bytes_transferred);
         doRead();

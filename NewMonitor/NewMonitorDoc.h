@@ -2,11 +2,6 @@
 // NewMonitorDoc.h : CNewMonitorDoc 类的接口
 //
 
-
-#pragma once
-
-#include <vector>
-
 class CNewMonitorDoc : public CDocument
 {
 protected: // 仅从序列化创建
@@ -37,7 +32,6 @@ public:
 #endif
 
 private:
-
 
 protected:
 

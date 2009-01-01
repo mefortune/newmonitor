@@ -16,22 +16,20 @@ void CRC16Wrapper::InitPolyTbl()
 	}
 }
 
-uint16_t CRC16Wrapper::CalcCRC16(std::string str)
+uint16_t CRC16Wrapper::CalcCRC16(std::vector<char> data)
 {
 	uint16_t reg = 0;
-	for(size_t i = 0; i != str.size() + 2; ++i){
+	for (size_t i = 0; i != data.size() + 2; ++i){
 		uint16_t crc_mask = _poly_tbl[reg >> 8];
-		reg = reg << 8 | ( i < str.size() ? str[i] : 0);
+		reg = reg << 8 | (i < data.size() ? data[i] : 0);
 		reg ^= crc_mask;
 	}
-
 	return reg;
 }
 
-std::string CRC16Wrapper::GenerateCRCData(std::string str)
+void CRC16Wrapper::GenerateCRCData(std::vector<char> &data)
 {
-	uint16_t crc = CalcCRC16(str);
-	str.push_back(static_cast<char>(crc & 0xFF));
-	str.push_back(static_cast<char>((crc & 0xFF00) >> 8));
-	return str;
+	uint16_t crc = CalcCRC16(data);
+	data.push_back(static_cast<char>(crc & 0xFF));
+	data.push_back(static_cast<char>((crc & 0xFF00) >> 8));
 }

@@ -2,14 +2,13 @@
 #define CRC16WRAPPER_H
 
 
-#include <string>
+#include <vector>
 #include <cstdint>
 class CRC16Wrapper{
 public:
 	CRC16Wrapper(){ InitPolyTbl(); }
-	uint16_t CalcCRC16(std::string str);
-
-	std::string GenerateCRCData(std::string str);
+	uint16_t CalcCRC16(std::vector<char> data);
+	void GenerateCRCData(std::vector<char> &data);
 private:
 	void InitPolyTbl();
 private:

@@ -7,7 +7,10 @@ class CRC16Wrapper;
 class SerialManager{
 public:
 	SerialManager();
-	SerialManager(std::string &devname);
+
+	void open(const std::string &devname);
+	void close();
+
 	static SerialManager* GetInstance()
 	{
 		static SerialManager _serial_manager;
@@ -16,7 +19,17 @@ public:
 
 	bool SyncTime();
 private:
-	std::unique_ptr<CallbackAsyncSerial> _serial_wrapper;
-	std::unique_ptr<CRC16Wrapper>	_crc_wrapper;
-	static const unsigned int baud_rate = 19200;
+	std::shared_ptr<CallbackAsyncSerial> _serial_wrapper;
+	std::shared_ptr<CRC16Wrapper>	_crc_wrapper;
+
+	static const unsigned int baud_rate		= 19200;
+
+	static const char data_head = '\xFF';
+	static const char data_tail = '\x0D';
+
+	// frame bein flag
+	static const char time_frame_flag = '\x24';
+	static const char data_frame_flag = '\x40';
+	// cmd flag
+	static const char time_cmd_flag = '\xC0';
 };
