@@ -19,7 +19,7 @@
 *.[Cc]ache
 *.ilk
 *.log
-*.lib
+*.exp
 *.sbr
 *.sdf
 *.opensdf

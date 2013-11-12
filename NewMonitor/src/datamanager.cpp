@@ -11,6 +11,7 @@ bool DataManager::OpenDataFile(std::wstring filename)
 	catch (SQLiteWrapper::SQLiteError){
 		return false;
 	}
+	return true;
 }
 
 void DataManager::CloseDataFile(std::wstring filename)
