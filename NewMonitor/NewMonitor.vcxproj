@@ -43,9 +43,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)boost;</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(SolutionDir)stage\lib;</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)boost;</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(SolutionDir)boost\stage\lib;</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -103,8 +107,10 @@
   <ItemGroup>
     <ClInclude Include="ClassView.h" />
     <ClInclude Include="FileView.h" />
+    <ClInclude Include="include\AsyncSerial.h" />
     <ClInclude Include="include\crc16wrapper.h" />
     <ClInclude Include="include\datamanager.h" />
+    <ClInclude Include="include\serialmanager.h" />
     <ClInclude Include="include\sqlite3.h" />
     <ClInclude Include="include\sqlitewrapper.h" />
     <ClInclude Include="MainFrm.h" />
@@ -125,8 +131,10 @@
     <ClCompile Include="NewMonitorDoc.cpp" />
     <ClCompile Include="NewMonitorView.cpp" />
     <ClCompile Include="OutputWnd.cpp" />
+    <ClCompile Include="src\AsyncSerial.cpp" />
     <ClCompile Include="src\crc16wrapper.cpp" />
     <ClCompile Include="src\datamanager.cpp" />
+    <ClCompile Include="src\serialmanager.cpp" />
     <ClCompile Include="src\sqlitewrapper.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

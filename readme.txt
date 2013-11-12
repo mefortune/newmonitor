@@ -1,0 +1,1 @@
+bjam --with-system --with-thread --with-date_time --with-regex --with-serialization runtime-link=static stage

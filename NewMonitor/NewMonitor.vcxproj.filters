@@ -75,6 +75,12 @@
     <ClInclude Include="include\datamanager.h">
       <Filter>Header Files\DataWrapper</Filter>
     </ClInclude>
+    <ClInclude Include="include\AsyncSerial.h">
+      <Filter>Header Files\SerialWrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="include\serialmanager.h">
+      <Filter>Header Files\SerialWrapper</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NewMonitor.cpp">
@@ -112,6 +118,12 @@
     </ClCompile>
     <ClCompile Include="src\datamanager.cpp">
       <Filter>Source Files\DataWrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AsyncSerial.cpp">
+      <Filter>Source Files\SerialWrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="src\serialmanager.cpp">
+      <Filter>Source Files\SerialWrapper</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
