@@ -66,3 +66,9 @@ packages/
 
 #Test files
 *.testsettings
+
+# boost library
+/boost/
+
+# chartdirector library
+/ChartDirector/
