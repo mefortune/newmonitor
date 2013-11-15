@@ -7,6 +7,8 @@
 
 #include "MainFrm.h"
 
+#include "include\serialmanager.h"
+#include <boost/system/system_error.hpp>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -32,6 +34,9 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_VIEW_OUTPUTWND, &CMainFrame::OnViewOutputWindow)
 	ON_UPDATE_COMMAND_UI(ID_VIEW_OUTPUTWND, &CMainFrame::OnUpdateViewOutputWindow)
 	ON_WM_SETTINGCHANGE()
+	ON_COMMAND(ID_SERIAL_CONNECT, &CMainFrame::OnSerialConnect)
+	ON_COMMAND(ID_SERIAL_DISCONNECT, &CMainFrame::OnSerialDisconnect)
+	ON_COMMAND(ID_SERIAL_SYNCTIME, &CMainFrame::OnSerialSyncTime)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -106,7 +111,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	DockPane(&m_wndMenuBar);
 	DockPane(&m_wndToolBar);
 
-
 	// 启用 Visual Studio 2005 样式停靠窗口行为
 	CDockingManager::SetDockingMode(DT_SMART);
 	// 启用 Visual Studio 2005 样式停靠窗口自动隐藏行为
@@ -114,6 +118,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// 加载菜单项图像(不在任何标准工具栏上): 
 	CMFCToolBar::AddToolBarForImageCollection(IDR_MENU_IMAGES, theApp.m_bHiColorIcons ? IDB_MENU_IMAGES_24 : 0);
+	// 加载自定义菜单项图像
+	CMFCToolBar::AddToolBarForImageCollection(IDR_USER_TOOLBAR, theApp.m_bHiColorIcons ? IDB_USER_BITMAP : 0);
 
 	// 创建停靠窗口
 	if (!CreateDockingWindows())
@@ -438,4 +444,34 @@ void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 {
 	CFrameWndEx::OnSettingChange(uFlags, lpszSection);
 	m_wndOutput.UpdateFonts();
+}
+
+void CMainFrame::OnSerialConnect()
+{
+	SerialManager *serial_manager = SerialManager::GetInstance();
+	try{
+		serial_manager->open("COM4");
+	}
+	catch (boost::system::system_error &e){
+		serial_manager->LogEvent("连接失败", e.code().value(), e.what(), Event_Alert | Event_Log);
+	}
+	
+}
+
+void CMainFrame::OnSerialDisconnect()
+{
+	SerialManager *serial_manager = SerialManager::GetInstance();
+	try{
+		serial_manager->close();
+	}
+	catch (boost::system::system_error &e){
+		serial_manager->LogEvent("断开失败", e.code().value(), e.what(), Event_Alert | Event_Log);
+	}
+	
+}
+
+void CMainFrame::OnSerialSyncTime()
+{
+	SerialManager *serial_manager = SerialManager::GetInstance();
+	serial_manager->SyncTime();
 }

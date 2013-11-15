@@ -56,6 +56,9 @@ protected:
 	afx_msg void OnViewOutputWindow();
 	afx_msg void OnUpdateViewOutputWindow(CCmdUI* pCmdUI);
 	afx_msg void OnSettingChange(UINT uFlags, LPCTSTR lpszSection);
+	afx_msg void OnSerialConnect();
+	afx_msg void OnSerialDisconnect();
+	afx_msg void OnSerialSyncTime();
 	DECLARE_MESSAGE_MAP()
 
 	BOOL CreateDockingWindows();

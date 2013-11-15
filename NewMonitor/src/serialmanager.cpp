@@ -15,6 +15,7 @@ _serial_wrapper{ new CallbackAsyncSerial{} }, _crc_wrapper{ new CRC16Wrapper{} }
 void SerialManager::open(const std::string &devname)
 {
 	_serial_wrapper->open(devname, baud_rate);
+	_serial_wrapper->setCallback(boost::bind(&SerialManager::ReadDataCallback, this, _1, _2));
 }
 
 void SerialManager::close()
@@ -46,4 +47,38 @@ bool SerialManager::SyncTime()
 	_serial_wrapper->write(sync_time_cmd);
 
 	return _serial_wrapper->errorStatus();
+}
+
+void SerialManager::ReadDataCallback(const char* data, size_t sz)
+{
+	// insert incoming data into _data_vec;
+	_data_vec.insert(_data_vec.end(), data, data + sz);
+
+	std::vector<char> cmd = PickCommand();
+	while (cmd.size() != 0){
+		HandleCommand(cmd);
+		cmd = PickCommand();
+	}
+
+
+}
+
+std::vector<char> SerialManager::PickCommand()
+{
+	return std::vector<char>{};
+}
+
+void SerialManager::HandleCommand(std::vector<char>& cmd)
+{
+
+}
+
+void SerialManager::LogEvent(const char *event_name, const int value, const char *event_description, unsigned int mask)
+{
+	// Alert User About Event
+	if (mask & Event_Alert){
+		char msg_buf[256];
+		sprintf_s(msg_buf, "error_code:%d\nerror_description;%s", value, event_description);
+		MessageBoxA(NULL, msg_buf, event_name, MB_OK);
+	}
 }

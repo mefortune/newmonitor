@@ -98,6 +98,8 @@ IDR_EXPLORER            BITMAP                  "res\\explorer.bmp"
 IDB_EXPLORER_24         BITMAP                  "res\\explorer_hc.bmp"
 IDR_MENU_IMAGES         BITMAP                  "res\\menuimages.bmp"
 IDB_MENU_IMAGES_24      BITMAP                  "res\\menuimages_hc.bmp"
+IDR_USER_TOOLBAR        BITMAP                  "res\\usertoolbar.bmp"
+IDB_USER_BITMAP         BITMAP                  "res\\userbitmap.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -156,6 +158,13 @@ BEGIN
     BUTTON      ID_SORTING_GROUPBYTYPE
 END
 
+IDR_USER_TOOLBAR TOOLBAR 16, 15
+BEGIN
+    BUTTON      ID_SERIAL_CONNECT
+    BUTTON      ID_SERIAL_DISCONNECT
+    BUTTON      ID_SERIAL_SYNCTIME
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -171,17 +180,17 @@ BEGIN
         MENUITEM "保存(&S)\tCtrl+S",              ID_FILE_SAVE
         MENUITEM "另存为(&A)...",                  ID_FILE_SAVE_AS
         MENUITEM SEPARATOR
-        MENUITEM "最近的文件",                       ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM "最近的文件",                       ID_FILE_MRU_FILE1
         MENUITEM SEPARATOR
         MENUITEM "退出(&X)",                      ID_APP_EXIT
     END
     POPUP "通信(&C)"
     BEGIN
-        MENUITEM "撤消(&U)\tCtrl+Z",              ID_EDIT_UNDO
+        MENUITEM "连接(&U)\tCtrl+Z",              ID_SERIAL_CONNECT
+        MENUITEM "下传时间(&T)\tCtrl+X",            ID_SERIAL_SYNCTIME
+        MENUITEM "断开(&U)\tCtrl+Z",              ID_SERIAL_DISCONNECT
         MENUITEM SEPARATOR
-        MENUITEM "剪切(&T)\tCtrl+X",              ID_EDIT_CUT
-        MENUITEM "复制(&C)\tCtrl+C",              ID_EDIT_COPY
-        MENUITEM "粘贴(&P)\tCtrl+V",              ID_EDIT_PASTE
+        MENUITEM "通信设置(&C)\tCtrl+C",            ID_SERIAL_CONFIG
     END
     POPUP "视图(&V)"
     BEGIN
@@ -503,6 +512,7 @@ STRINGTABLE
 BEGIN
     IDS_EXPLORER            "资源管理器"
     IDS_EDIT_MENU           "编辑"
+    ID_SERIAL_CONNECT       "连接串口"
 END
 
 STRINGTABLE

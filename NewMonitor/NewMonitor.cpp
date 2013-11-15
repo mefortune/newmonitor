@@ -70,6 +70,14 @@ BOOL CNewMonitorApp::InitInstance()
 
 	CWinAppEx::InitInstance();
 
+	// ≥ı ºªØ OLE ø‚
+	if (!AfxOleInit())
+	{
+		AfxMessageBox(IDP_OLE_INIT_FAILED);
+		return FALSE;
+	}
+
+	AfxEnableControlContainer();
 
 	EnableTaskbarInteraction(FALSE);
 

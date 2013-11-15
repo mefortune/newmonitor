@@ -85,10 +85,15 @@ void AsyncSerial::open(const std::string& devname, unsigned int baud_rate,
         asio::serial_port_base::flow_control opt_flow,
         asio::serial_port_base::stop_bits opt_stop)
 {
-    if(isOpen()) close();
+	if (isOpen()) {
+		close();
+		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+	}
 
     setErrorStatus(true);//If an exception is thrown, error_ remains true
-    pimpl->port.open(devname);
+	
+	pimpl->port.open(devname);
+	
     pimpl->port.set_option(asio::serial_port_base::baud_rate(baud_rate));
     pimpl->port.set_option(opt_parity);
     pimpl->port.set_option(opt_csize);
