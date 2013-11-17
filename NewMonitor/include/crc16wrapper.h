@@ -7,8 +7,9 @@
 class CRC16Wrapper{
 public:
 	CRC16Wrapper(){ InitPolyTbl(); }
-	uint16_t CalcCRC16(std::vector<char> data);
+	uint16_t CalcCRC16(const std::vector<char> data);
 	void GenerateCRCData(std::vector<char> &data);
+	bool VerifyCRCData(const std::vector<char> data);
 private:
 	void InitPolyTbl();
 private:

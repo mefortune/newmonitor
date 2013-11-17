@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "../include/crc16wrapper.h"
+#include <exception>
 
 void CRC16Wrapper::InitPolyTbl()
 {
@@ -32,4 +33,24 @@ void CRC16Wrapper::GenerateCRCData(std::vector<char> &data)
 	uint16_t crc = CalcCRC16(data);
 	data.push_back(static_cast<char>(crc & 0xFF));
 	data.push_back(static_cast<char>((crc & 0xFF00) >> 8));
+}
+
+bool CRC16Wrapper::VerifyCRCData(const std::vector<char> data)
+{
+	// the last two char is the CRC, so data must not less than 2
+	if (data.size() < 2){
+		throw std::runtime_error("the data length to verify crc must not be less than 2");
+	}
+	// just test
+	return true;
+
+	std::vector<char> real_data{ data.begin(), data.end() - 2 };
+	uint16_t crc = CalcCRC16(real_data);
+	if (static_cast<char>(crc & 0xFF) == data[data.size() - 2]
+		&& static_cast<char>((crc & 0xFF00) >> 8) == data[data.size() - 1]){
+		return true;
+	}
+	else{
+		return false;
+	}
 }

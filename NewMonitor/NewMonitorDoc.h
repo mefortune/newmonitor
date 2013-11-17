@@ -1,6 +1,8 @@
 
 // NewMonitorDoc.h : CNewMonitorDoc 类的接口
 //
+#include <string>
+
 
 class CNewMonitorDoc : public CDocument
 {
@@ -30,6 +32,12 @@ public:
 	virtual void AssertValid() const;
 	virtual void Dump(CDumpContext& dc) const;
 #endif
+
+public:
+	struct SYSTEM_SETTINGS{
+		// com settings
+		std::string _com_port{"COM2"};
+	}_system_settings;
 
 private:
 

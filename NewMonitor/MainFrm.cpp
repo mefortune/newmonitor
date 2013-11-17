@@ -6,8 +6,10 @@
 #include "NewMonitor.h"
 
 #include "MainFrm.h"
+#include "NewMonitorDoc.h"
 
 #include "include\serialmanager.h"
+
 #include <boost/system/system_error.hpp>
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -448,12 +450,14 @@ void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 
 void CMainFrame::OnSerialConnect()
 {
+	CNewMonitorDoc *pDoc = CNewMonitorDoc::GetDoc();
+
 	SerialManager *serial_manager = SerialManager::GetInstance();
 	try{
-		serial_manager->open("COM4");
+		serial_manager->open(pDoc->_system_settings._com_port);
 	}
 	catch (boost::system::system_error &e){
-		serial_manager->LogEvent("连接失败", e.code().value(), e.what(), Event_Alert | Event_Log);
+		LogEvent("连接失败", e.code().value(), e.what(), Event_Alert | Event_Log);
 	}
 	
 }
@@ -465,7 +469,7 @@ void CMainFrame::OnSerialDisconnect()
 		serial_manager->close();
 	}
 	catch (boost::system::system_error &e){
-		serial_manager->LogEvent("断开失败", e.code().value(), e.what(), Event_Alert | Event_Log);
+		LogEvent("断开失败", e.code().value(), e.what(), Event_Alert | Event_Log);
 	}
 	
 }
@@ -473,5 +477,16 @@ void CMainFrame::OnSerialDisconnect()
 void CMainFrame::OnSerialSyncTime()
 {
 	SerialManager *serial_manager = SerialManager::GetInstance();
+	
+	if (!serial_manager->is_open()){
+		CNewMonitorDoc *pDoc = CNewMonitorDoc::GetDoc();
+
+		try{
+			serial_manager->open(pDoc->_system_settings._com_port);
+		}
+		catch (boost::system::system_error &e){
+			LogEvent("连接失败", e.code().value(), e.what(), Event_Alert | Event_Log);
+		}
+	}
 	serial_manager->SyncTime();
 }
