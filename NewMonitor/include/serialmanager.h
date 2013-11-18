@@ -18,6 +18,7 @@ class CRC16Wrapper;
 #define Event_CMD2_Error       4
 #define Event_CMD3_Error       5
 #define Event_CMD4_Error       6
+#define Event_CMD_Varify_Error 7
 class SerialManager{
 public:
 	SerialManager();
@@ -39,6 +40,9 @@ private:
 	// pick commands from _data_vec, returns empty if no command available
 	std::vector<char> PickCommand();
 	void HandleCommand(std::vector<char>& cmd);
+
+	// a complete data has being transfered, just handle it;
+	void HandleCompleteData();
 private:
 	std::shared_ptr<CallbackAsyncSerial>	_serial_wrapper;
 	std::shared_ptr<CRC16Wrapper>			_crc_wrapper;
@@ -52,7 +56,6 @@ private:
 		std::map<size_t, std::pair<size_t, std::vector<char>>> _data_transfered;
 	}_data_transmission;
 	
-
 	static const unsigned int baud_rate		= 19200;
 
 	static const char data_head				= '\xFF';

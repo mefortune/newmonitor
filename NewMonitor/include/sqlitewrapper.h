@@ -12,7 +12,7 @@ public:
 	SQLiteWrapper(const SQLiteWrapper&) = delete;
 	SQLiteWrapper& operator=(const SQLiteWrapper&) = delete;
 
-	bool Exec(std::string sql, int(*callback)(void*, int, char**, char**), void *param, std::string& errmsg);
+	bool Exec(const std::string sql, int(*callback)(void*, int, char**, char**), void *param, std::string& errmsg);
 
 	class SQLiteError : public std::runtime_error{
 	public:

@@ -4,7 +4,8 @@
 #include "FileView.h"
 #include "Resource.h"
 #include "NewMonitor.h"
-
+#include "NewMonitorDoc.h"
+#include "include\datamanager.h"
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
@@ -26,13 +27,8 @@ BEGIN_MESSAGE_MAP(CFileView, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
 	ON_WM_CONTEXTMENU()
-	ON_COMMAND(ID_PROPERTIES, OnProperties)
-	ON_COMMAND(ID_OPEN, OnFileOpen)
-	ON_COMMAND(ID_OPEN_WITH, OnFileOpenWith)
-	ON_COMMAND(ID_DUMMY_COMPILE, OnDummyCompile)
-	ON_COMMAND(ID_EDIT_CUT, OnEditCut)
-	ON_COMMAND(ID_EDIT_COPY, OnEditCopy)
-	ON_COMMAND(ID_EDIT_CLEAR, OnEditClear)
+	ON_COMMAND(ID_DATA_ADDTABLE, &CFileView::OnAddTable)
+	ON_UPDATE_COMMAND_UI(ID_DATA_ADDTABLE, &CFileView::OnUpdateAddTable)
 	ON_WM_PAINT()
 	ON_WM_SETFOCUS()
 END_MESSAGE_MAP()
@@ -75,8 +71,6 @@ int CFileView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// 所有命令将通过此控件路由，而不是通过主框架路由: 
 	m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
 
-	// 填入一些静态树视图数据(此处只需填入虚拟代码，而不是复杂的数据)
-	FillFileView();
 	AdjustLayout();
 
 	return 0;
@@ -90,37 +84,17 @@ void CFileView::OnSize(UINT nType, int cx, int cy)
 
 void CFileView::FillFileView()
 {
-	HTREEITEM hRoot = m_wndFileView.InsertItem(_T("FakeApp 文件"), 0, 0);
-	m_wndFileView.SetItemState(hRoot, TVIS_BOLD, TVIS_BOLD);
-
-	HTREEITEM hSrc = m_wndFileView.InsertItem(_T("FakeApp 源文件"), 0, 0, hRoot);
-
-	m_wndFileView.InsertItem(_T("FakeApp.cpp"), 1, 1, hSrc);
-	m_wndFileView.InsertItem(_T("FakeApp.rc"), 1, 1, hSrc);
-	m_wndFileView.InsertItem(_T("FakeAppDoc.cpp"), 1, 1, hSrc);
-	m_wndFileView.InsertItem(_T("FakeAppView.cpp"), 1, 1, hSrc);
-	m_wndFileView.InsertItem(_T("MainFrm.cpp"), 1, 1, hSrc);
-	m_wndFileView.InsertItem(_T("StdAfx.cpp"), 1, 1, hSrc);
-
-	HTREEITEM hInc = m_wndFileView.InsertItem(_T("FakeApp 头文件"), 0, 0, hRoot);
-
-	m_wndFileView.InsertItem(_T("FakeApp.h"), 2, 2, hInc);
-	m_wndFileView.InsertItem(_T("FakeAppDoc.h"), 2, 2, hInc);
-	m_wndFileView.InsertItem(_T("FakeAppView.h"), 2, 2, hInc);
-	m_wndFileView.InsertItem(_T("Resource.h"), 2, 2, hInc);
-	m_wndFileView.InsertItem(_T("MainFrm.h"), 2, 2, hInc);
-	m_wndFileView.InsertItem(_T("StdAfx.h"), 2, 2, hInc);
-
-	HTREEITEM hRes = m_wndFileView.InsertItem(_T("FakeApp 资源文件"), 0, 0, hRoot);
-
-	m_wndFileView.InsertItem(_T("FakeApp.ico"), 2, 2, hRes);
-	m_wndFileView.InsertItem(_T("FakeApp.rc2"), 2, 2, hRes);
-	m_wndFileView.InsertItem(_T("FakeAppDoc.ico"), 2, 2, hRes);
-	m_wndFileView.InsertItem(_T("FakeToolbar.bmp"), 2, 2, hRes);
-
-	m_wndFileView.Expand(hRoot, TVE_EXPAND);
-	m_wndFileView.Expand(hSrc, TVE_EXPAND);
-	m_wndFileView.Expand(hInc, TVE_EXPAND);
+	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
+	for (auto file_pair : pDoc->_explore_status._file_map){
+		HTREEITEM hRoot = m_wndFileView.InsertItem(file_pair.first.c_str(), 0, 0);
+		m_wndFileView.SetItemState(hRoot, TVIS_BOLD, TVIS_BOLD);
+		
+		for (auto table : file_pair.second){
+			HTREEITEM hItem = m_wndFileView.InsertItem(std::get<1>(table).c_str(), 1, 1, hRoot);
+			m_wndFileView.SetItemData(hItem, std::get<0>(table));
+		}
+		m_wndFileView.Expand(hRoot, TVE_EXPAND);
+	}
 }
 
 void CFileView::OnContextMenu(CWnd* pWnd, CPoint point)
@@ -149,6 +123,26 @@ void CFileView::OnContextMenu(CWnd* pWnd, CPoint point)
 	}
 
 	pWndTree->SetFocus();
+
+	HTREEITEM item_selected = pWndTree->GetSelectedItem();
+	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
+	if (item_selected == NULL){
+		pDoc->_explore_status._sel_status = 0;
+	}
+	else if (pWndTree->ItemHasChildren(item_selected))
+	{
+		pWndTree->EnsureVisible(item_selected);
+		pDoc->_explore_status._sel_status = 1;
+		pDoc->_explore_status._sel_filename = pWndTree->GetItemText(item_selected).GetString();
+	}
+	else{
+		pWndTree->EnsureVisible(item_selected);
+		pDoc->_explore_status._sel_status = 2;
+		pDoc->_explore_status._sel_filename = pWndTree->GetItemText(item_selected).GetString();
+		pDoc->_explore_status._sel_filename = pWndTree->GetItemText(item_selected).GetString();
+	}
+
+
 	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EXPLORER, point.x, point.y, this, TRUE);
 }
 
@@ -166,42 +160,6 @@ void CFileView::AdjustLayout()
 
 	m_wndToolBar.SetWindowPos(NULL, rectClient.left, rectClient.top, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
 	m_wndFileView.SetWindowPos(NULL, rectClient.left + 1, rectClient.top + cyTlb + 1, rectClient.Width() - 2, rectClient.Height() - cyTlb - 2, SWP_NOACTIVATE | SWP_NOZORDER);
-}
-
-void CFileView::OnProperties()
-{
-	AfxMessageBox(_T("属性...."));
-
-}
-
-void CFileView::OnFileOpen()
-{
-	// TODO:  在此处添加命令处理程序代码
-}
-
-void CFileView::OnFileOpenWith()
-{
-	// TODO:  在此处添加命令处理程序代码
-}
-
-void CFileView::OnDummyCompile()
-{
-	// TODO:  在此处添加命令处理程序代码
-}
-
-void CFileView::OnEditCut()
-{
-	// TODO:  在此处添加命令处理程序代码
-}
-
-void CFileView::OnEditCopy()
-{
-	// TODO:  在此处添加命令处理程序代码
-}
-
-void CFileView::OnEditClear()
-{
-	// TODO:  在此处添加命令处理程序代码
 }
 
 void CFileView::OnPaint()
@@ -253,4 +211,25 @@ void CFileView::OnChangeVisualStyle()
 	m_wndFileView.SetImageList(&m_FileViewImages, TVSIL_NORMAL);
 }
 
+void CFileView::OnAddTable()
+{
+	AfxMessageBox(_T("属性...."));
 
+}
+
+void CFileView::OnUpdateAddTable(CCmdUI* pCmdUI)
+{
+	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
+	switch (pDoc->_explore_status._sel_status)
+	{
+	case 0:
+		pCmdUI->Enable(false);
+		break;
+	case 1:
+		pCmdUI->Enable(true);
+		break;
+	case 2:
+		pCmdUI->Enable(false);
+		break;
+	}
+}

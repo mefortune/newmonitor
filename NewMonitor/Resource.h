@@ -79,18 +79,20 @@
 #define IDR_USER_TOOLBAR                312
 #define ID_SERIAL_SYNCTIME              313
 #define ID_SERIAL_CONFIG                314
-#define IDB_USERBITMAP                  314
 #define IDB_USER_BITMAP                 314
+#define ID_DATA_ADDTABLE                315
+#define ID_DATA_DELTABLE                316
 #define ID_Menu                         32771
 #define ID_32772                        32772
+#define ID_Menu32779                    32779
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        315
-#define _APS_NEXT_COMMAND_VALUE         32779
+#define _APS_NEXT_COMMAND_VALUE         32780
 #define _APS_NEXT_CONTROL_VALUE         1000
-#define _APS_NEXT_SYMED_VALUE           315
+#define _APS_NEXT_SYMED_VALUE           317
 #endif
 #endif

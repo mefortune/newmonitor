@@ -2,7 +2,9 @@
 // NewMonitorDoc.h : CNewMonitorDoc 类的接口
 //
 #include <string>
-
+#include <map>
+#include <vector>
+#include <tuple>
 
 class CNewMonitorDoc : public CDocument
 {
@@ -36,9 +38,16 @@ public:
 public:
 	struct SYSTEM_SETTINGS{
 		// com settings
-		std::string _com_port{"COM2"};
+		std::string _com_port{"COM4"};
 	}_system_settings;
 
+	struct EXPLORE_STATUS{
+		unsigned		_sel_status{ 0 };   //0: no sel, 1:file, 2: table
+		std::wstring	_sel_filename;
+		unsigned		_sel_tableid;
+
+		std::map<std::wstring, std::vector<std::tuple<unsigned, std::wstring>>> _file_map;
+	}_explore_status;
 private:
 
 protected:

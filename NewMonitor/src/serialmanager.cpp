@@ -71,23 +71,50 @@ std::vector<char> SerialManager::PickCommand()
 	// the first data in _data_vec must be 0xFF
 	std::vector<char>::iterator cmd_head = std::find(_data_vec.begin(), _data_vec.end(), data_head);
 	_data_vec.erase(_data_vec.begin(), cmd_head);
-	std::vector<char>::iterator cmd_tail = std::find(_data_vec.begin(), _data_vec.end(), data_tail);
-	if (cmd_tail != _data_vec.end()){
-		std::vector<char> temp{_data_vec.begin(), cmd_tail + 1};
-		_data_vec.erase(_data_vec.begin(), cmd_tail + 1);
-		return temp;
+	if (_data_vec.size() < 7){
+		return std::vector<char>{};
+	}
+	char cmd_type = _data_vec[2];
+	size_t cmd_size = 0;
+	switch (cmd_type){
+	case data_start_cmd_flag:
+		cmd_size = 13;
+		break;
+	case data_length_cmd_flag:
+		cmd_size = 9;
+		break;
+	case data_trans_cmd_flag:
+		{
+			size_t data_count = static_cast<size_t>(static_cast<unsigned char>(_data_vec[6]));
+			cmd_size = 10 + data_count * 2;
+		}
+		break;
+	case data_end_cmd_flag:
+		cmd_size = 7;
+		break;
+	}
+	if (cmd_size == 0){
+		LogEvent("命令提取错误", Event_Data_Error, HexToString(_data_vec).c_str(), Event_Log);
+		_data_vec.erase(_data_vec.begin()); // should not happen, so remove the 0xFF;
+		return std::vector<char>{};
+	}
+	if (_data_vec.size() < cmd_size){
+		LogEvent("命令提取错误", Event_Data_Error, HexToString(_data_vec).c_str(), Event_Log);
+		return std::vector<char>{};
+	}
+	if (_data_vec[cmd_size - 1] != data_tail){
+		LogEvent("命令提取错误", Event_Data_Error, HexToString(_data_vec).c_str(), Event_Log);
+		_data_vec.erase(_data_vec.begin()); // should not happen, so remove the 0xFF;
+		return std::vector<char>{};
 	}
 
-	return std::vector<char>{};
+	std::vector<char> temp{ _data_vec.begin(), _data_vec.begin() + cmd_size };
+	_data_vec.erase(_data_vec.begin(), _data_vec.begin() + cmd_size);
+	return temp;
 }
 
 void SerialManager::HandleCommand(std::vector<char>& cmd)
 {
-	if (cmd.size() < 4){
-		LogEvent("数据长度错误", Event_Data_Error, HexToString(cmd).c_str(), Event_Log);
-		return;
-	}
-
 	std::vector<char> cmd_data{ cmd.begin() + 1, cmd.end() - 1 };
 	if (!_crc_wrapper->VerifyCRCData(cmd_data)){
 		LogEvent("数据校验错误", Event_Data_Error, HexToString(cmd).c_str(), Event_Log);
@@ -96,48 +123,88 @@ void SerialManager::HandleCommand(std::vector<char>& cmd)
 
 	switch (cmd_data[1]){
 	case data_start_cmd_flag:
-		if (cmd_data.size() != 11){
-			LogEvent("命令长度错误", Event_CMD1_Error, HexToString(cmd_data).c_str(), Event_Log);
+		{
+			_data_transmission._data_no = static_cast<unsigned short>(static_cast<unsigned char>(cmd_data[2]));
+			_data_transmission._data_time.tm_year = static_cast<int>(static_cast<unsigned char>(cmd_data[3])) + 100;
+			_data_transmission._data_time.tm_mon = static_cast<int>(static_cast<unsigned char>(cmd_data[4])) - 1;
+			_data_transmission._data_time.tm_mday = static_cast<int>(static_cast<unsigned char>(cmd_data[5]));
+			_data_transmission._data_time.tm_hour = static_cast<int>(static_cast<unsigned char>(cmd_data[6]));
+			_data_transmission._data_time.tm_min = static_cast<int>(static_cast<unsigned char>(cmd_data[7]));
+			_data_transmission._data_time.tm_sec = static_cast<int>(static_cast<unsigned char>(cmd_data[8]));
+
+			_data_transmission._data_count = 0;
+			_data_transmission._data_transfered.clear();
 		}
-		_data_transmission._data_no = cmd_data[2];
-		_data_transmission._data_time.tm_year = static_cast<int>(static_cast<unsigned char>(cmd_data[3])) + 100;
-		_data_transmission._data_time.tm_mon = static_cast<int>(static_cast<unsigned char>(cmd_data[4])) - 1;
-		_data_transmission._data_time.tm_mday = static_cast<int>(static_cast<unsigned char>(cmd_data[5]));
-		_data_transmission._data_time.tm_hour = static_cast<int>(static_cast<unsigned char>(cmd_data[6]));
-		_data_transmission._data_time.tm_min = static_cast<int>(static_cast<unsigned char>(cmd_data[7]));
-		_data_transmission._data_time.tm_sec = static_cast<int>(static_cast<unsigned char>(cmd_data[8]));
 		break;
 	case data_length_cmd_flag:
-		if (cmd_data.size() != 7){
-			LogEvent("命令长度错误", Event_CMD2_Error, HexToString(cmd_data).c_str(), Event_Log);
+		{
+			if (cmd_data[2] != _data_transmission._data_no){
+				LogEvent("数据段索引不匹配", Event_CMD2_Error, HexToString(cmd_data).c_str(), Event_Log);
+				return;
+			}
+			_data_transmission._data_count = static_cast<unsigned short>(static_cast<unsigned char>(cmd_data[3]))
+				| static_cast<unsigned short>(static_cast<unsigned char>(cmd_data[4])) << 8;
 		}
-		if (cmd_data[2] != _data_transmission._data_no){
-			LogEvent("数据段索引不匹配", Event_CMD2_Error, HexToString(cmd_data).c_str(), Event_Log);
-		}
-		_data_transmission._data_count = (static_cast<unsigned short>(static_cast<unsigned char>(cmd_data[3]))) 
-			| (static_cast<unsigned short>(static_cast<unsigned char>(cmd_data[4])) << 8);
-
-
-		char msg[256];
-		sprintf_s(msg, "len:%d",_data_transmission._data_count);
-		OutputDebugStringA(msg);
-
 		break;
 	case data_trans_cmd_flag:
+		{
+			if (cmd_data[2] != _data_transmission._data_no){
+				LogEvent("数据段索引不匹配", Event_CMD3_Error, HexToString(cmd_data).c_str(), Event_Log);
+				return;
+			}
+			size_t data_index = static_cast<unsigned short>(static_cast<unsigned char>(cmd_data[3]))
+				| static_cast<unsigned short>(static_cast<unsigned char>(cmd_data[4])) << 8;
+			size_t data_count = static_cast<size_t>(static_cast<unsigned char>(cmd_data[5]));
+
+			_data_transmission._data_transfered.insert(std::make_pair(data_index, std::make_pair(data_count, std::vector<char>(cmd_data.begin() + 6, cmd_data.end() - 2))));
+		}
 		break;
 	case data_end_cmd_flag:
+		{
+			if (cmd_data[2] != _data_transmission._data_no){
+				LogEvent("数据段索引不匹配", Event_CMD4_Error, HexToString(cmd_data).c_str(), Event_Log);
+				return;
+			}
+			HandleCompleteData();
+		}
 		break;
 	}
+}
+
+void SerialManager::HandleCompleteData()
+{
+	size_t data_count = 0;
+	std::vector<char> data;
+	for (auto data_pair : _data_transmission._data_transfered){
+		data_count += data_pair.second.first;
+		data.insert(data.end(), data_pair.second.second.begin(), data_pair.second.second.end());
+	}
+
+	// verify if data_count match
+	char msg_buf[256];
+	if (data_count != _data_transmission._data_count){
+		sprintf_s(msg_buf, "段起始声明了%lu字数据,实际收到%lu数据", _data_transmission._data_count, data_count);
+		LogEvent("数据段长度不匹配", Event_CMD_Varify_Error, msg_buf, Event_Log);
+		return;
+	}
+	if (data.size() != data_count * 2){
+		sprintf_s(msg_buf, "段起始声明了%lu字数据,实际收到%lu数据", _data_transmission._data_count, data.size() / 2);
+		LogEvent("数据段长度不匹配", Event_CMD_Varify_Error, msg_buf, Event_Log);
+		return;
+	}
+	
+
+	OutputDebugStringA(HexToString(data).c_str());
 }
 
 std::string HexToString(const std::vector<char> hex)
 {
 	std::string temp;
 	for (auto c : hex){
-		char low = static_cast<short>(c & 0x0F) >= 10 ? 
-			'A' + static_cast<short>(c & 0x0F) - 10 : '0' + static_cast<short>(c & 0x0F);
-		char high = static_cast<short>((c & 0xF0) >> 4) >= 10 ?
-			'A' + static_cast<short>((c & 0xF0) >> 4) - 10 : '0' + static_cast<short>((c & 0xF0) >> 4);
+		char low = static_cast<short>(static_cast<unsigned char>(c & 0x0F)) >= 10 ?
+			'A' + static_cast<short>(static_cast<unsigned char>(c & 0x0F)) - 10 : '0' + static_cast<short>(static_cast<unsigned char>(c & 0x0F));
+		char high = static_cast<short>(static_cast<unsigned char>(c & 0xF0) >> 4) >= 10 ?
+			'A' + static_cast<short>(static_cast<unsigned char>(c & 0xF0) >> 4) - 10 : '0' + static_cast<short>(static_cast<unsigned char>(c & 0xF0) >> 4);
 
 		temp += high;
 		temp += low;

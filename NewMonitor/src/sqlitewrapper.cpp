@@ -25,13 +25,15 @@ void SQLiteWrapper::Disconnect()
 	}
 }
 
-bool SQLiteWrapper::Exec(std::string sql, int(*callback)(void*, int, char**, char**), void *param, std::string& errmsg)
+bool SQLiteWrapper::Exec(const std::string sql, int(*callback)(void*, int, char**, char**), void *param, std::string& errmsg)
 {
 	char *zErrMsg = 0;
 	int rc = sqlite3_exec(_db, sql.c_str(), callback, param, &zErrMsg);
-	if (rc != SQLITE_OK){
+	if (zErrMsg != nullptr){
 		errmsg.insert(0, zErrMsg);
 		sqlite3_free(zErrMsg);
+	}
+	if (rc != SQLITE_OK){
 		return false;
 	}
 	return true;

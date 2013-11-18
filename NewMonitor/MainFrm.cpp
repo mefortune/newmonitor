@@ -9,6 +9,7 @@
 #include "NewMonitorDoc.h"
 
 #include "include\serialmanager.h"
+#include "include\datamanager.h"
 
 #include <boost/system/system_error.hpp>
 #ifdef _DEBUG
@@ -36,9 +37,12 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_VIEW_OUTPUTWND, &CMainFrame::OnViewOutputWindow)
 	ON_UPDATE_COMMAND_UI(ID_VIEW_OUTPUTWND, &CMainFrame::OnUpdateViewOutputWindow)
 	ON_WM_SETTINGCHANGE()
+	// 通信操作
 	ON_COMMAND(ID_SERIAL_CONNECT, &CMainFrame::OnSerialConnect)
 	ON_COMMAND(ID_SERIAL_DISCONNECT, &CMainFrame::OnSerialDisconnect)
 	ON_COMMAND(ID_SERIAL_SYNCTIME, &CMainFrame::OnSerialSyncTime)
+	// 文件操作
+	ON_COMMAND(ID_FILE_OPEN, &CMainFrame::OnFileOpen)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -489,4 +493,16 @@ void CMainFrame::OnSerialSyncTime()
 		}
 	}
 	serial_manager->SyncTime();
+}
+
+void CMainFrame::OnFileOpen()
+{
+	CFileDialog file_dialog(TRUE, L"db", NULL, OFN_HIDEREADONLY, L"数据库文件 (*.db)|*.db||");
+	file_dialog.m_ofn.lpstrTitle = L"打开数据库文件";
+
+	if (file_dialog.DoModal() == IDOK){
+		DataManager *data_manager = DataManager::GetInstance();
+
+		data_manager->OpenDataFile(file_dialog.GetPathName().GetString());
+	}
 }
