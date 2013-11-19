@@ -29,7 +29,6 @@ INSERT INTO "main"."TableInfo" (
 )
 VALUES
 	('%s', '%s', %I64d, '%s')
-
 )sql";
 
 

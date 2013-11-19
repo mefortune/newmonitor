@@ -21,6 +21,8 @@ public:
 
 	using TableInfo = std::map <int/*table_id*/, std::tuple<std::wstring/*table_name*/,std::wstring/*display_name*/, std::wstring/*description*/, std::tm/*create_time*/>>;
 	TableInfo EnumTableInfo();
+
+	bool CreateTableData(std::wstring display_name, std::wstring description);
 private:
 	void Connect(std::wstring filename);
 	void Disconnect();

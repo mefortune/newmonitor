@@ -19,6 +19,8 @@ public:
 
 	static void EnableSQLErrorLog();
 private:
+	void ParseDataFile(std::wstring);
+
 	static void errorLogCallback(void *pArg, int iErrCode, const char *zMsg);
 
 private:

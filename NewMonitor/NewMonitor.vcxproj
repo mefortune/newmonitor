@@ -119,6 +119,7 @@
     <ClInclude Include="include\serialmanager.h" />
     <ClInclude Include="include\sqlite3.h" />
     <ClInclude Include="include\sqlitewrapper.h" />
+    <ClInclude Include="include\sql_template.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="NewMonitor.h" />
     <ClInclude Include="NewMonitorDoc.h" />

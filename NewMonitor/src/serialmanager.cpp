@@ -32,8 +32,8 @@ bool SerialManager::is_open()
 bool SerialManager::SyncTime()
 {
 	std::time_t cur_time = std::time(nullptr);
-	#pragma warning(push)
-	#pragma warning(disable:4996)
+#pragma warning(push)
+#pragma warning(disable:4996)
 	std::tm *   pcur_time_tm = std::localtime(&cur_time);
 #pragma warning(pop)
 
