@@ -17,20 +17,13 @@ public:
 		return &_data_manager;
 	}
 
-	void AddDataTable(std::wstring filename, const std::wstring table_name, const std::wstring description);
-	void RenameDataTable(const std::string table_name, const std::string new_name);
+	static void EnableSQLErrorLog();
 private:
-	void EstablishTables(std::wstring);
-	void LogEventSql(const std::string info, const std::string description);
+	static void errorLogCallback(void *pArg, int iErrCode, const char *zMsg);
 
-	void EnumTable(const std::wstring filename);
-	static int OnEnumTable(void*, int, char**, char**);
 private:
 	std::map<std::wstring, std::unique_ptr<SQLiteWrapper>> _sql_connections;
-
-	static const std::string sql_create_tbl_info;
-	static const std::string sql_template_addnew;
-	static const std::string sql_enum_tbl_info;
+	static char msg_buf[1024];
 };
 
 #endif

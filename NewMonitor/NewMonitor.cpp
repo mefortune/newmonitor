@@ -10,6 +10,7 @@
 
 #include "NewMonitorDoc.h"
 #include "NewMonitorView.h"
+#include "include\datamanager.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -80,6 +81,11 @@ BOOL CNewMonitorApp::InitInstance()
 	AfxEnableControlContainer();
 
 	EnableTaskbarInteraction(FALSE);
+
+	// 初始化Sqlite 日志记录
+	DataManager *data_manager = DataManager::GetInstance();
+	data_manager->EnableSQLErrorLog();
+
 
 	// 使用 RichEdit 控件需要  AfxInitRichEdit2()	
 	// AfxInitRichEdit2();

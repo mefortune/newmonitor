@@ -3,28 +3,38 @@
 
 #include "../include/sqlite3.h"
 #include <string>
-#include <stdexcept>
+#include <tuple>
+#include <map>
+#include <ctime>
 
 class SQLiteWrapper{
 public:
 	explicit SQLiteWrapper(std::wstring filename);
 	~SQLiteWrapper(){ Disconnect(); }
+
 	SQLiteWrapper(const SQLiteWrapper&) = delete;
 	SQLiteWrapper& operator=(const SQLiteWrapper&) = delete;
 
-	bool Exec(const std::string sql, int(*callback)(void*, int, char**, char**), void *param, std::string& errmsg);
+	// should be invoked before any other functions;
+	
+	bool InitTableInfo();
 
-	class SQLiteError : public std::runtime_error{
-	public:
-		SQLiteError(const char * msg) : runtime_error(msg){}
-	};
+	using TableInfo = std::map <int/*table_id*/, std::tuple<std::wstring/*table_name*/,std::wstring/*display_name*/, std::wstring/*description*/, std::tm/*create_time*/>>;
+	TableInfo EnumTableInfo();
 private:
-	void Connect();
+	void Connect(std::wstring filename);
 	void Disconnect();
 
+	enum class SQLCMD{
+		INIT_TABLE_INFO,
+		ENUM_TABLE_INFO,
+	};
+	void PrepareStmts();
+	void DestroyStmts();
+	
 private:
-	std::wstring _filename;
 	sqlite3     *_db{ nullptr };
+	std::map<SQLCMD, sqlite3_stmt*> _sql_stmts;
 };
 
 #endif
