@@ -29,6 +29,7 @@ BEGIN_MESSAGE_MAP(CFileView, CDockablePane)
 	ON_WM_CONTEXTMENU()
 	ON_COMMAND(ID_DATA_ADDTABLE, &CFileView::OnAddTable)
 	ON_UPDATE_COMMAND_UI(ID_DATA_ADDTABLE, &CFileView::OnUpdateAddTable)
+	ON_COMMAND(IDU_FRESHEXPLORER, &CFileView::OnFreshExplorer)
 	ON_WM_PAINT()
 	ON_WM_SETFOCUS()
 END_MESSAGE_MAP()
@@ -232,4 +233,9 @@ void CFileView::OnUpdateAddTable(CCmdUI* pCmdUI)
 		pCmdUI->Enable(false);
 		break;
 	}
+}
+
+void CFileView::OnFreshExplorer()
+{
+	FillFileView();
 }

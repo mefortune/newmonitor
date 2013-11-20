@@ -45,5 +45,6 @@ protected:
 	afx_msg void OnSetFocus(CWnd* pOldWnd);
 	afx_msg void OnAddTable();
 	afx_msg void OnUpdateAddTable(CCmdUI* pCmdUI);
+	afx_msg void OnFreshExplorer();
 	DECLARE_MESSAGE_MAP()
 };

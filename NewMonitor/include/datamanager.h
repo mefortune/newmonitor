@@ -22,7 +22,6 @@ private:
 	void ParseDataFile(std::wstring);
 
 	static void errorLogCallback(void *pArg, int iErrCode, const char *zMsg);
-
 private:
 	std::map<std::wstring, std::unique_ptr<SQLiteWrapper>> _sql_connections;
 	static char msg_buf[1024];

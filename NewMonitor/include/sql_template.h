@@ -28,7 +28,25 @@ INSERT INTO "main"."TableInfo" (
 	"description"
 )
 VALUES
-	('%s', '%s', %I64d, '%s')
+	(?1, ?2, ?3, ?4)
 )sql";
 
+const wchar_t sql_create_tbl_data[] = LR"sql(
+CREATE TABLE "main"."%s" (
+	"id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+	"seg_id" INTEGER NOT NULL,
+	"data_time" INTEGER NOT NULL,
+	"data" BLOB NOT NULL
+)
+)sql";
+
+const wchar_t sql_insert_tbl_data[] = LR"sql(
+INSERT INTO "main"."%s" (
+	"seg_id",
+	"data_time",
+	"data"
+)
+VALUES
+	(?1, ?2, ?3)
+)sql";
 

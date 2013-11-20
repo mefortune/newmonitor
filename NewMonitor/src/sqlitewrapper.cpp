@@ -20,7 +20,6 @@ void SQLiteWrapper::Connect(std::wstring filename)
 		sqlite3_close(_db);
 		throw std::runtime_error("can't open sqlite connection");
 	}
-	PrepareStmts();
 }
 
 void SQLiteWrapper::Disconnect()
@@ -33,9 +32,13 @@ void SQLiteWrapper::Disconnect()
 
 bool SQLiteWrapper::InitTableInfo()
 {
+	sqlite3_prepare16_v2(_db, sql_create_tbl_info, sizeof(sql_create_tbl_info), &_sql_stmts[SQLCMD::INIT_TABLE_INFO], nullptr);
+
 	bool exec_result = sqlite3_step(_sql_stmts[SQLCMD::INIT_TABLE_INFO]) == SQLITE_DONE;
 	sqlite3_reset(_sql_stmts[SQLCMD::INIT_TABLE_INFO]);
 
+	sqlite3_prepare16_v2(_db, sql_enum_tbl_info, sizeof(sql_enum_tbl_info), &_sql_stmts[SQLCMD::ENUM_TABLE_INFO], nullptr);
+	sqlite3_prepare16_v2(_db, sql_template_addnew, sizeof(sql_template_addnew), &_sql_stmts[SQLCMD::ADD_TABLE_INFO], nullptr);
 	return exec_result;
 }
 
@@ -61,22 +64,40 @@ auto SQLiteWrapper::EnumTableInfo()->TableInfo
 	return table_info;
 }
 
-bool CreateTableData(std::wstring display_name, std::wstring description)
+bool SQLiteWrapper::CreateTableData(std::wstring display_name, std::wstring description)
 {
 	std::time_t cur_time = std::time(nullptr);
 #pragma warning(push)
 #pragma warning(disable:4996)
 	std::tm *ptime_tm = std::localtime(&cur_time);
 #pragma warning(pop)
+	wchar_t	tablename[50];
+	swprintf_s(tablename, L"TableData_%d%d%d", ptime_tm->tm_hour, ptime_tm->tm_min, ptime_tm->tm_sec);
 
+	sqlite3_bind_text16(_sql_stmts[SQLCMD::ADD_TABLE_INFO], 1, tablename, -1, nullptr);
+	sqlite3_bind_text16(_sql_stmts[SQLCMD::ADD_TABLE_INFO], 2, display_name.c_str(),-1, nullptr);
+	sqlite3_bind_int64(_sql_stmts[SQLCMD::ADD_TABLE_INFO], 3, cur_time);
+	sqlite3_bind_text16(_sql_stmts[SQLCMD::ADD_TABLE_INFO], 4, description.c_str(), -1, nullptr);
 
+	bool exec_result = sqlite3_step(_sql_stmts[SQLCMD::ADD_TABLE_INFO]) == SQLITE_DONE;
+	sqlite3_reset(_sql_stmts[SQLCMD::ADD_TABLE_INFO]);
+
+	// create the real data tbl;
+	wchar_t sql_temp[300];
+	swprintf_s(sql_temp, sql_create_tbl_data, tablename);
+	
+	sqlite3_stmt* create_tbl_stmt;
+	sqlite3_prepare16_v2(_db, sql_temp, sizeof(sql_temp), &create_tbl_stmt, nullptr);
+	sqlite3_step(create_tbl_stmt);
+	sqlite3_finalize(create_tbl_stmt);
+
+	// prepare statements to insert data into that data_tbl;
+	swprintf_s(sql_temp, sql_insert_tbl_data, tablename);
+	sqlite3_prepare16_v2(_db, sql_temp, sizeof(sql_temp), &_sql_data_stmts[std::wstring{ tablename }], nullptr);
+
+	return exec_result;
 }
 
-void SQLiteWrapper::PrepareStmts()
-{
-	sqlite3_prepare16_v2(_db, sql_create_tbl_info, sizeof(sql_create_tbl_info), &_sql_stmts[SQLCMD::INIT_TABLE_INFO], nullptr);
-	sqlite3_prepare16_v2(_db, sql_enum_tbl_info, sizeof(sql_enum_tbl_info), &_sql_stmts[SQLCMD::ENUM_TABLE_INFO], nullptr);
-}
 void SQLiteWrapper::DestroyStmts()
 {
 	for (auto stmt_pair : _sql_stmts){

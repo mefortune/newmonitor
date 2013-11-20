@@ -43,6 +43,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_SERIAL_SYNCTIME, &CMainFrame::OnSerialSyncTime)
 	// ÎÄ¼þ²Ù×÷
 	ON_COMMAND(ID_FILE_OPEN, &CMainFrame::OnFileOpen)
+
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -505,4 +506,16 @@ void CMainFrame::OnFileOpen()
 
 		data_manager->OpenDataFile(file_dialog.GetPathName().GetString());
 	}
+}
+
+BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
+{
+	// TODO: Add your specialized code here and/or call the base class
+	if (nID == IDU_FRESHEXPLORER){
+		if (m_wndFileView.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo)){
+			return TRUE;
+		}
+	}
+
+	return CFrameWndEx::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
 }
