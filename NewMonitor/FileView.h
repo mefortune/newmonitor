@@ -43,8 +43,11 @@ protected:
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	afx_msg void OnPaint();
 	afx_msg void OnSetFocus(CWnd* pOldWnd);
+	afx_msg void OnSelChange(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnAddTable();
 	afx_msg void OnUpdateAddTable(CCmdUI* pCmdUI);
+	afx_msg void OnCloseDatabase();
+	afx_msg void OnUpdateCloseDatabase(CCmdUI* pCmdUI);
 	afx_msg void OnFreshExplorer();
 	DECLARE_MESSAGE_MAP()
 };

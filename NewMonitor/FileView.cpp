@@ -27,8 +27,11 @@ BEGIN_MESSAGE_MAP(CFileView, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
 	ON_WM_CONTEXTMENU()
+	ON_NOTIFY(TVN_SELCHANGED, 4, &CFileView::OnSelChange)
 	ON_COMMAND(ID_DATA_ADDTABLE, &CFileView::OnAddTable)
 	ON_UPDATE_COMMAND_UI(ID_DATA_ADDTABLE, &CFileView::OnUpdateAddTable)
+	ON_COMMAND(ID_DATA_CLOSEDATABASE, &CFileView::OnCloseDatabase)
+	ON_UPDATE_COMMAND_UI(ID_DATA_CLOSEDATABASE, &CFileView::OnUpdateCloseDatabase)
 	ON_COMMAND(IDU_FRESHEXPLORER, &CFileView::OnFreshExplorer)
 	ON_WM_PAINT()
 	ON_WM_SETFOCUS()
@@ -85,14 +88,39 @@ void CFileView::OnSize(UINT nType, int cx, int cy)
 
 void CFileView::FillFileView()
 {
+	HTREEITEM cur_sel = m_wndFileView.GetSelectedItem();
+	std::wstring cur_sel_name{};		//文件节点名
+	int	cur_sel_id = 0;					//表节点ID
+
+	if (cur_sel != NULL){
+		if (m_wndFileView.GetParentItem(cur_sel) == NULL){		//文件节点
+			cur_sel_name = m_wndFileView.GetItemText(cur_sel).GetString();
+		}
+		else{													//表节点
+			cur_sel_name = m_wndFileView.GetItemText(m_wndFileView.GetParentItem(cur_sel)).GetString();
+			cur_sel_id = m_wndFileView.GetItemData(cur_sel);
+		}
+	}
+
 	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
+	pDoc->_explore_status._sel_status = 0;
+
+
+	m_wndFileView.DeleteAllItems();
 	for (auto file_pair : pDoc->_explore_status._file_map){
 		HTREEITEM hRoot = m_wndFileView.InsertItem(file_pair.first.c_str(), 0, 0);
 		m_wndFileView.SetItemState(hRoot, TVIS_BOLD, TVIS_BOLD);
 		
+		if (file_pair.first == cur_sel_name && cur_sel_id == 0){
+			m_wndFileView.SelectItem(hRoot);
+		}
+
 		for (auto table : file_pair.second){
 			HTREEITEM hItem = m_wndFileView.InsertItem(std::get<1>(table).c_str(), 1, 1, hRoot);
 			m_wndFileView.SetItemData(hItem, std::get<0>(table));
+			if (file_pair.first == cur_sel_name && std::get<0>(table) == cur_sel_id){
+				m_wndFileView.SelectItem(hItem);
+			}
 		}
 		m_wndFileView.Expand(hRoot, TVE_EXPAND);
 	}
@@ -124,26 +152,6 @@ void CFileView::OnContextMenu(CWnd* pWnd, CPoint point)
 	}
 
 	pWndTree->SetFocus();
-
-	HTREEITEM item_selected = pWndTree->GetSelectedItem();
-	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
-	if (item_selected == NULL){
-		pDoc->_explore_status._sel_status = 0;
-	}
-	else if (pWndTree->ItemHasChildren(item_selected))
-	{
-		pWndTree->EnsureVisible(item_selected);
-		pDoc->_explore_status._sel_status = 1;
-		pDoc->_explore_status._sel_filename = pWndTree->GetItemText(item_selected).GetString();
-	}
-	else{
-		pWndTree->EnsureVisible(item_selected);
-		pDoc->_explore_status._sel_status = 2;
-		pDoc->_explore_status._sel_filename = pWndTree->GetItemText(item_selected).GetString();
-		pDoc->_explore_status._sel_filename = pWndTree->GetItemText(item_selected).GetString();
-	}
-
-
 	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EXPLORER, point.x, point.y, this, TRUE);
 }
 
@@ -212,10 +220,30 @@ void CFileView::OnChangeVisualStyle()
 	m_wndFileView.SetImageList(&m_FileViewImages, TVSIL_NORMAL);
 }
 
+void CFileView::OnSelChange(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMTREEVIEW pnmtv = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
+	HTREEITEM cur_sel = pnmtv->itemNew.hItem;
+	m_wndFileView.EnsureVisible(cur_sel);
+
+	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
+	if (m_wndFileView.GetParentItem(cur_sel) == NULL)		//文件节点
+	{
+		
+		pDoc->_explore_status._sel_status = 1;
+		pDoc->_explore_status._sel_filename = m_wndFileView.GetItemText(cur_sel).GetString();
+	}	
+	else{													//表节点
+		pDoc->_explore_status._sel_status = 2;
+		pDoc->_explore_status._sel_filename = m_wndFileView.GetItemText(m_wndFileView.GetParentItem(cur_sel)).GetString();
+		pDoc->_explore_status._sel_tableid = m_wndFileView.GetItemData(cur_sel);
+	}
+
+	*pResult = 0;
+}
 void CFileView::OnAddTable()
 {
-	AfxMessageBox(_T("属性...."));
-
+	
 }
 
 void CFileView::OnUpdateAddTable(CCmdUI* pCmdUI)
@@ -234,7 +262,27 @@ void CFileView::OnUpdateAddTable(CCmdUI* pCmdUI)
 		break;
 	}
 }
+void CFileView::OnCloseDatabase()
+{
 
+}
+
+void CFileView::OnUpdateCloseDatabase(CCmdUI* pCmdUI)
+{
+	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
+	switch (pDoc->_explore_status._sel_status)
+	{
+	case 0:
+		pCmdUI->Enable(false);
+		break;
+	case 1:
+		pCmdUI->Enable(true);
+		break;
+	case 2:
+		pCmdUI->Enable(false);
+		break;
+	}
+}
 void CFileView::OnFreshExplorer()
 {
 	FillFileView();

@@ -453,6 +453,18 @@ void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 	m_wndOutput.UpdateFonts();
 }
 
+BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
+{
+	// TODO: Add your specialized code here and/or call the base class
+	if (nID == IDU_FRESHEXPLORER){
+		if (m_wndFileView.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo)){
+			return TRUE;
+		}
+	}
+
+	return CFrameWndEx::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
+}
+
 void CMainFrame::OnSerialConnect()
 {
 	CNewMonitorDoc *pDoc = CNewMonitorDoc::GetDoc();
@@ -508,14 +520,4 @@ void CMainFrame::OnFileOpen()
 	}
 }
 
-BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
-{
-	// TODO: Add your specialized code here and/or call the base class
-	if (nID == IDU_FRESHEXPLORER){
-		if (m_wndFileView.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo)){
-			return TRUE;
-		}
-	}
 
-	return CFrameWndEx::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
-}
