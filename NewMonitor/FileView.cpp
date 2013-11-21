@@ -28,10 +28,19 @@ BEGIN_MESSAGE_MAP(CFileView, CDockablePane)
 	ON_WM_SIZE()
 	ON_WM_CONTEXTMENU()
 	ON_NOTIFY(TVN_SELCHANGED, 4, &CFileView::OnSelChange)
+	ON_NOTIFY(TVN_BEGINLABELEDIT, 4, &CFileView::OnBeginEdit)
+	ON_NOTIFY(TVN_ENDLABELEDIT, 4, &CFileView::OnEndEdit)
+	ON_NOTIFY(TVN_GETINFOTIP, 4, &CFileView::OnQueryInfo)
 	ON_COMMAND(ID_DATA_ADDTABLE, &CFileView::OnAddTable)
 	ON_UPDATE_COMMAND_UI(ID_DATA_ADDTABLE, &CFileView::OnUpdateAddTable)
+	ON_COMMAND(ID_DATA_DELTABLE, &CFileView::OnDelTable)
+	ON_UPDATE_COMMAND_UI(ID_DATA_DELTABLE, &CFileView::OnUpdateDelTable)
 	ON_COMMAND(ID_DATA_CLOSEDATABASE, &CFileView::OnCloseDatabase)
 	ON_UPDATE_COMMAND_UI(ID_DATA_CLOSEDATABASE, &CFileView::OnUpdateCloseDatabase)
+	ON_COMMAND(ID_DATA_EDITTABLE, &CFileView::OnEditTable)
+	ON_UPDATE_COMMAND_UI(ID_DATA_EDITTABLE, &CFileView::OnUpdateEditTable)
+	ON_COMMAND(ID_DATA_EDITINFO, &CFileView::OnEditInfo)
+	ON_UPDATE_COMMAND_UI(ID_DATA_EDITINFO, &CFileView::OnUpdateEditInfo)
 	ON_COMMAND(IDU_FRESHEXPLORER, &CFileView::OnFreshExplorer)
 	ON_WM_PAINT()
 	ON_WM_SETFOCUS()
@@ -49,7 +58,8 @@ int CFileView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	rectDummy.SetRectEmpty();
 
 	// ¥¥Ω® ”Õº: 
-	const DWORD dwViewStyle = WS_CHILD | WS_VISIBLE | TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS;
+	const DWORD dwViewStyle = WS_CHILD | WS_VISIBLE | TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS |
+		TVS_EDITLABELS | TVS_INFOTIP | TVS_SHOWSELALWAYS;
 
 	if (!m_wndFileView.Create(dwViewStyle, rectDummy, this, 4))
 	{
@@ -115,10 +125,10 @@ void CFileView::FillFileView()
 			m_wndFileView.SelectItem(hRoot);
 		}
 
-		for (auto table : file_pair.second){
-			HTREEITEM hItem = m_wndFileView.InsertItem(std::get<1>(table).c_str(), 1, 1, hRoot);
-			m_wndFileView.SetItemData(hItem, std::get<0>(table));
-			if (file_pair.first == cur_sel_name && std::get<0>(table) == cur_sel_id){
+		for (auto table_info : file_pair.second){
+			HTREEITEM hItem = m_wndFileView.InsertItem(std::get<0>(table_info.second).c_str(), 1, 1, hRoot);
+			m_wndFileView.SetItemData(hItem, table_info.first);
+			if (file_pair.first == cur_sel_name && table_info.first == cur_sel_id){
 				m_wndFileView.SelectItem(hItem);
 			}
 		}
@@ -241,11 +251,93 @@ void CFileView::OnSelChange(NMHDR* pNMHDR, LRESULT* pResult)
 
 	*pResult = 0;
 }
-void CFileView::OnAddTable()
+
+void CFileView::OnBeginEdit(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	
+	LPNMTVDISPINFO ptvdi = reinterpret_cast<LPNMTVDISPINFO>(pNMHDR);
+	HTREEITEM cur_edit = ptvdi->item.hItem;
+	if (m_wndFileView.GetParentItem(cur_edit) == NULL){
+		*pResult = 1;
+	}
+	else{
+		CEdit* pEdit = m_wndFileView.GetEditControl();
+		pEdit->SetLimitText(20);
+		*pResult = 0;
+	}
 }
 
+void CFileView::OnEndEdit(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMTVDISPINFO ptvdi = reinterpret_cast<LPNMTVDISPINFO>(pNMHDR);
+	HTREEITEM cur_edit = ptvdi->item.hItem;
+	HTREEITEM cur_root = m_wndFileView.GetParentItem(cur_edit);
+
+	std::wstring filename = m_wndFileView.GetItemText(cur_root).GetString();
+	int table_id = m_wndFileView.GetItemData(cur_edit);
+	DataManager *data_manager = DataManager::GetInstance();
+
+	if (ptvdi->item.pszText == NULL || wcslen(ptvdi->item.pszText) == 0){
+		if (table_id == 0){
+			m_wndFileView.DeleteItem(cur_edit);
+		}
+		*pResult = FALSE;
+	}
+	else
+	{
+		if (table_id == 0){
+			data_manager->CreateDataTable(filename, std::wstring(ptvdi->item.pszText), std::wstring());
+		}
+		*pResult = TRUE;
+	}
+}
+
+void CFileView::OnQueryInfo(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMTVGETINFOTIP lpGetInfoTip = reinterpret_cast<LPNMTVGETINFOTIP>(pNMHDR);
+	HTREEITEM cur_item = lpGetInfoTip->hItem;
+
+	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
+	if (m_wndFileView.GetParentItem(cur_item) != NULL){
+		std::wstring filename = m_wndFileView.GetItemText(m_wndFileView.GetParentItem(cur_item)).GetString();
+		int	table_id = m_wndFileView.GetItemData(cur_item);
+
+		swprintf_s(lpGetInfoTip->pszText, lpGetInfoTip->cchTextMax, L"%s",
+			std::get<1>(pDoc->_explore_status._file_map[filename][table_id]).c_str());
+	}
+	*pResult = 0;
+}
+void CFileView::OnAddTable()
+{
+	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
+	HTREEITEM cur_sel = m_wndFileView.GetSelectedItem();
+	
+	HTREEITEM new_item = m_wndFileView.InsertItem(L"", 1, 1, cur_sel, TVI_LAST);
+	m_wndFileView.SetItemData(new_item, 0);
+	m_wndFileView.Expand(cur_sel, TVE_EXPAND);
+	m_wndFileView.EditLabel(new_item);
+}
+
+void CFileView::OnDelTable()
+{
+}
+
+void CFileView::OnCloseDatabase()
+{
+	DataManager *data_manager = DataManager::GetInstance();
+	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
+	data_manager->CloseDataFile(pDoc->_explore_status._sel_filename);
+}
+
+void CFileView::OnEditTable()
+{
+	HTREEITEM hSel = m_wndFileView.GetSelectedItem();
+	m_wndFileView.EditLabel(hSel);
+}
+
+void CFileView::OnEditInfo()
+{
+
+}
 void CFileView::OnUpdateAddTable(CCmdUI* pCmdUI)
 {
 	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
@@ -262,9 +354,22 @@ void CFileView::OnUpdateAddTable(CCmdUI* pCmdUI)
 		break;
 	}
 }
-void CFileView::OnCloseDatabase()
-{
 
+void CFileView::OnUpdateDelTable(CCmdUI* pCmdUI)
+{
+	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
+	switch (pDoc->_explore_status._sel_status)
+	{
+	case 0:
+		pCmdUI->Enable(false);
+		break;
+	case 1:
+		pCmdUI->Enable(false);
+		break;
+	case 2:
+		pCmdUI->Enable(true);
+		break;
+	}
 }
 
 void CFileView::OnUpdateCloseDatabase(CCmdUI* pCmdUI)
@@ -280,6 +385,40 @@ void CFileView::OnUpdateCloseDatabase(CCmdUI* pCmdUI)
 		break;
 	case 2:
 		pCmdUI->Enable(false);
+		break;
+	}
+}
+
+void CFileView::OnUpdateEditTable(CCmdUI* pCmdUI)
+{
+	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
+	switch (pDoc->_explore_status._sel_status)
+	{
+	case 0:
+		pCmdUI->Enable(false);
+		break;
+	case 1:
+		pCmdUI->Enable(false);
+		break;
+	case 2:
+		pCmdUI->Enable(true);
+		break;
+	}
+}
+
+void CFileView::OnUpdateEditInfo(CCmdUI* pCmdUI)
+{
+	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
+	switch (pDoc->_explore_status._sel_status)
+	{
+	case 0:
+		pCmdUI->Enable(false);
+		break;
+	case 1:
+		pCmdUI->Enable(false);
+		break;
+	case 2:
+		pCmdUI->Enable(true);
 		break;
 	}
 }

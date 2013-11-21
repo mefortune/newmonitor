@@ -46,7 +46,7 @@ public:
 		std::wstring	_sel_filename;
 		unsigned		_sel_tableid;
 
-		std::map<std::wstring, std::vector<std::tuple<int, std::wstring>>> _file_map;
+		std::map<std::wstring/*filename*/, std::map<int, std::tuple<std::wstring/*displayname*/, std::wstring/*description*/>>> _file_map;
 	}_explore_status;
 private:
 

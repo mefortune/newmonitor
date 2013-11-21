@@ -44,10 +44,19 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg void OnSetFocus(CWnd* pOldWnd);
 	afx_msg void OnSelChange(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnBeginEdit(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnEndEdit(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnQueryInfo(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnAddTable();
 	afx_msg void OnUpdateAddTable(CCmdUI* pCmdUI);
+	afx_msg void OnDelTable();
+	afx_msg void OnUpdateDelTable(CCmdUI* pCmdUI);
 	afx_msg void OnCloseDatabase();
 	afx_msg void OnUpdateCloseDatabase(CCmdUI* pCmdUI);
+	afx_msg void OnEditTable();
+	afx_msg void OnUpdateEditTable(CCmdUI* pCmdUI);
+	afx_msg void OnEditInfo();
+	afx_msg void OnUpdateEditInfo(CCmdUI* pCmdUI);
 	afx_msg void OnFreshExplorer();
 	DECLARE_MESSAGE_MAP()
 };

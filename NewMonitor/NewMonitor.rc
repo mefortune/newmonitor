@@ -17,7 +17,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// 中文(简体，中国) resources
+// Chinese (Simplified, PRC) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
@@ -242,8 +242,11 @@ BEGIN
     BEGIN
         MENUITEM "关闭数据库",                       ID_DATA_CLOSEDATABASE
         MENUITEM "添加数据表&O)",                    ID_DATA_ADDTABLE
+        MENUITEM SEPARATOR
         MENUITEM "删除数据表(&W)",                   ID_DATA_DELTABLE
         MENUITEM SEPARATOR
+        MENUITEM "修改数据表名",                      ID_DATA_EDITTABLE
+        MENUITEM "修改数据表说明",                     ID_DATA_EDITINFO
     END
 END
 
@@ -509,7 +512,7 @@ BEGIN
     IDS_FIND_TAB            "查找"
 END
 
-#endif    // 中文(简体，中国) resources
+#endif    // Chinese (Simplified, PRC) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
