@@ -96,46 +96,6 @@ void CFileView::OnSize(UINT nType, int cx, int cy)
 	AdjustLayout();
 }
 
-void CFileView::FillFileView()
-{
-	HTREEITEM cur_sel = m_wndFileView.GetSelectedItem();
-	std::wstring cur_sel_name{};		//文件节点名
-	int	cur_sel_id = 0;					//表节点ID
-
-	if (cur_sel != NULL){
-		if (m_wndFileView.GetParentItem(cur_sel) == NULL){		//文件节点
-			cur_sel_name = m_wndFileView.GetItemText(cur_sel).GetString();
-		}
-		else{													//表节点
-			cur_sel_name = m_wndFileView.GetItemText(m_wndFileView.GetParentItem(cur_sel)).GetString();
-			cur_sel_id = m_wndFileView.GetItemData(cur_sel);
-		}
-	}
-
-	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
-	pDoc->_explore_status._sel_status = 0;
-
-
-	m_wndFileView.DeleteAllItems();
-	for (auto file_pair : pDoc->_explore_status._file_map){
-		HTREEITEM hRoot = m_wndFileView.InsertItem(file_pair.first.c_str(), 0, 0);
-		m_wndFileView.SetItemState(hRoot, TVIS_BOLD, TVIS_BOLD);
-		
-		if (file_pair.first == cur_sel_name && cur_sel_id == 0){
-			m_wndFileView.SelectItem(hRoot);
-		}
-
-		for (auto table_info : file_pair.second){
-			HTREEITEM hItem = m_wndFileView.InsertItem(std::get<0>(table_info.second).c_str(), 1, 1, hRoot);
-			m_wndFileView.SetItemData(hItem, table_info.first);
-			if (file_pair.first == cur_sel_name && table_info.first == cur_sel_id){
-				m_wndFileView.SelectItem(hItem);
-			}
-		}
-		m_wndFileView.Expand(hRoot, TVE_EXPAND);
-	}
-}
-
 void CFileView::OnContextMenu(CWnd* pWnd, CPoint point)
 {
 	CTreeCtrl* pWndTree = (CTreeCtrl*) &m_wndFileView;
@@ -229,7 +189,46 @@ void CFileView::OnChangeVisualStyle()
 
 	m_wndFileView.SetImageList(&m_FileViewImages, TVSIL_NORMAL);
 }
+void CFileView::FillFileView()
+{
+	HTREEITEM cur_sel = m_wndFileView.GetSelectedItem();
+	std::wstring cur_sel_name{};		//文件节点名
+	int	cur_sel_id = 0;					//表节点ID
 
+	if (cur_sel != NULL){
+		if (m_wndFileView.GetParentItem(cur_sel) == NULL){		//文件节点
+			cur_sel_name = m_wndFileView.GetItemText(cur_sel).GetString();
+		}
+		else{													//表节点
+			cur_sel_name = m_wndFileView.GetItemText(m_wndFileView.GetParentItem(cur_sel)).GetString();
+			cur_sel_id = m_wndFileView.GetItemData(cur_sel);
+		}
+	}
+
+	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
+	pDoc->_explore_status._sel_status = 0;
+
+
+	m_wndFileView.DeleteAllItems();
+	for (auto file_pair : pDoc->_explore_status._file_map){
+		HTREEITEM hRoot = m_wndFileView.InsertItem(file_pair.first.c_str(), 0, 0);
+		m_wndFileView.SetItemState(hRoot, TVIS_BOLD, TVIS_BOLD);
+
+		if (file_pair.first == cur_sel_name && cur_sel_id == 0){
+			m_wndFileView.SelectItem(hRoot);
+		}
+
+		for (auto table_info : file_pair.second){
+			HTREEITEM hItem = m_wndFileView.InsertItem(std::get<0>(table_info.second).c_str(), 1, 1, hRoot, TVI_LAST);
+
+			m_wndFileView.SetItemData(hItem, table_info.first);
+			if (file_pair.first == cur_sel_name && table_info.first == cur_sel_id){
+				m_wndFileView.SelectItem(hItem);
+			}
+		}
+		m_wndFileView.Expand(hRoot, TVE_EXPAND);
+	}
+}
 void CFileView::OnSelChange(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMTREEVIEW pnmtv = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
@@ -239,7 +238,6 @@ void CFileView::OnSelChange(NMHDR* pNMHDR, LRESULT* pResult)
 	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
 	if (m_wndFileView.GetParentItem(cur_sel) == NULL)		//文件节点
 	{
-		
 		pDoc->_explore_status._sel_status = 1;
 		pDoc->_explore_status._sel_filename = m_wndFileView.GetItemText(cur_sel).GetString();
 	}	
@@ -247,7 +245,14 @@ void CFileView::OnSelChange(NMHDR* pNMHDR, LRESULT* pResult)
 		pDoc->_explore_status._sel_status = 2;
 		pDoc->_explore_status._sel_filename = m_wndFileView.GetItemText(m_wndFileView.GetParentItem(cur_sel)).GetString();
 		pDoc->_explore_status._sel_tableid = m_wndFileView.GetItemData(cur_sel);
+
+		//显示输出窗口
+		CFrameWnd * pFrame = (CFrameWnd *)(AfxGetApp()->m_pMainWnd);
+		pFrame->SendMessage(WM_COMMAND, MAKELONG(ID_VIEW_OUTPUTWND, 0), NULL);
 	}
+	
+	DataManager *data_manager = DataManager::GetInstance();
+	data_manager->ParseData();
 
 	*pResult = 0;
 }
@@ -275,6 +280,7 @@ void CFileView::OnEndEdit(NMHDR* pNMHDR, LRESULT* pResult)
 	std::wstring filename = m_wndFileView.GetItemText(cur_root).GetString();
 	int table_id = m_wndFileView.GetItemData(cur_edit);
 	DataManager *data_manager = DataManager::GetInstance();
+	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
 
 	if (ptvdi->item.pszText == NULL || wcslen(ptvdi->item.pszText) == 0){
 		if (table_id == 0){
@@ -287,7 +293,11 @@ void CFileView::OnEndEdit(NMHDR* pNMHDR, LRESULT* pResult)
 		if (table_id == 0){
 			data_manager->CreateDataTable(filename, std::wstring(ptvdi->item.pszText), std::wstring());
 		}
-		*pResult = TRUE;
+		else{
+			data_manager->AlterDataTable(filename, table_id, std::wstring(ptvdi->item.pszText),
+				std::get<1>(pDoc->_explore_status._file_map[filename][table_id]));
+		}
+		*pResult = FALSE;
 	}
 }
 
@@ -306,6 +316,14 @@ void CFileView::OnQueryInfo(NMHDR* pNMHDR, LRESULT* pResult)
 	}
 	*pResult = 0;
 }
+
+void CFileView::OnCloseDatabase()
+{
+	DataManager *data_manager = DataManager::GetInstance();
+	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
+	data_manager->CloseDataFile(pDoc->_explore_status._sel_filename);
+}
+
 void CFileView::OnAddTable()
 {
 	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
@@ -319,14 +337,18 @@ void CFileView::OnAddTable()
 
 void CFileView::OnDelTable()
 {
+	HTREEITEM cur_sel = m_wndFileView.GetSelectedItem();
+	HTREEITEM cur_root = m_wndFileView.GetParentItem(cur_sel);
+
+	std::wstring filename = m_wndFileView.GetItemText(cur_root).GetString();
+	int table_id = m_wndFileView.GetItemData(cur_sel);
+	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
+	DataManager *data_manager = DataManager::GetInstance();
+
+	data_manager->DeleteDataTable(filename, table_id, std::get<2>(pDoc->_explore_status._file_map[filename][table_id]));
 }
 
-void CFileView::OnCloseDatabase()
-{
-	DataManager *data_manager = DataManager::GetInstance();
-	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
-	data_manager->CloseDataFile(pDoc->_explore_status._sel_filename);
-}
+
 
 void CFileView::OnEditTable()
 {
@@ -425,4 +447,7 @@ void CFileView::OnUpdateEditInfo(CCmdUI* pCmdUI)
 void CFileView::OnFreshExplorer()
 {
 	FillFileView();
+
+	DataManager *data_manager = DataManager::GetInstance();
+	data_manager->ParseData();
 }

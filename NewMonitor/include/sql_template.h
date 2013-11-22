@@ -31,13 +31,35 @@ VALUES
 	(?1, ?2, ?3, ?4)
 )sql";
 
+const wchar_t sql_alter_tbl_info[] = LR"sql(
+UPDATE "main"."TableInfo"
+SET "display_name"=?1,
+	"description" =?2
+WHERE
+	id=?3
+)sql";
+
+const wchar_t sql_delete_tbl_info[] = LR"sql(
+DELETE FROM
+	"main"."TableInfo"
+WHERE
+	id=?1
+AND "table_name"=?2
+)sql";
+
 const wchar_t sql_create_tbl_data[] = LR"sql(
-CREATE TABLE "main"."%s" (
+CREATE TABLE 
+IF NOT EXISTS "main"."%s" (
 	"id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 	"seg_id" INTEGER NOT NULL,
 	"data_time" INTEGER NOT NULL,
 	"data" BLOB NOT NULL
 )
+)sql";
+
+const wchar_t sql_delete_tbl_data[] = LR"sql(
+DROP TABLE
+IF EXISTS "main"."%s"
 )sql";
 
 const wchar_t sql_insert_tbl_data[] = LR"sql(
@@ -48,5 +70,15 @@ INSERT INTO "main"."%s" (
 )
 VALUES
 	(?1, ?2, ?3)
+)sql";
+
+const wchar_t sql_enum_tbl_data[] = LR"sql(
+SELECT
+	%s.id,
+	%s.seg_id,
+	%s.data_time,
+	%s.data
+FROM
+	%s
 )sql";
 

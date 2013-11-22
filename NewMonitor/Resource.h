@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ generated include file.
-// Used by NewMonitor.rc
+// Microsoft Visual C++ 生成的包含文件。
+// 供 NewMonitor.rc 使用
 //
 #define IDD_ABOUTBOX                    100
 #define IDP_OLE_INIT_FAILED             100
@@ -83,6 +83,7 @@
 #define ID_DATA_ADDTABLE                315
 #define ID_DATA_DELTABLE                316
 #define IDU_FRESHEXPLORER               317
+#define IDU_FRESHDATA                   318
 #define ID_Menu                         32771
 #define ID_32772                        32772
 #define ID_Menu32779                    32779
@@ -102,6 +103,6 @@
 #define _APS_NEXT_RESOURCE_VALUE        315
 #define _APS_NEXT_COMMAND_VALUE         32788
 #define _APS_NEXT_CONTROL_VALUE         1000
-#define _APS_NEXT_SYMED_VALUE           318
+#define _APS_NEXT_SYMED_VALUE           319
 #endif
 #endif

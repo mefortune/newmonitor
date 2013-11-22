@@ -4,7 +4,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // COutputList 窗口
 
-class COutputList : public CListBox
+class COutputList : public CMFCListCtrl
 {
 // 构造
 public:
@@ -16,12 +16,10 @@ public:
 
 protected:
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
-	afx_msg void OnEditCopy();
-	afx_msg void OnEditClear();
-	afx_msg void OnViewOutput();
 
 	DECLARE_MESSAGE_MAP()
 };
+
 
 class COutputWnd : public CDockablePane
 {
@@ -35,16 +33,11 @@ public:
 protected:
 	CMFCTabCtrl	m_wndTabs;
 
-	COutputList m_wndOutputBuild;
+	COutputList m_wndOutputData;
 	COutputList m_wndOutputDebug;
 	COutputList m_wndOutputFind;
 
 protected:
-	void FillBuildWindow();
-	void FillDebugWindow();
-	void FillFindWindow();
-
-	void AdjustHorzScroll(CListBox& wndListBox);
 
 // 实现
 public:
@@ -53,6 +46,7 @@ public:
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg void OnFreshData();
 
 	DECLARE_MESSAGE_MAP()
 };

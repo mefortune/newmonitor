@@ -139,7 +139,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndClassView.EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&m_wndFileView);
 	CDockablePane* pTabbedBar = NULL;
-	m_wndClassView.AttachToTabWnd(&m_wndFileView, DM_SHOW, TRUE, &pTabbedBar);
+	m_wndClassView.AttachToTabWnd(&m_wndFileView, DM_SHOW, FALSE, &pTabbedBar);
 	m_wndOutput.EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&m_wndOutput);
 
@@ -235,7 +235,7 @@ BOOL CMainFrame::CreateDockingWindows()
 	CString strOutputWnd;
 	bNameValid = strOutputWnd.LoadString(IDS_OUTPUT_WND);
 	ASSERT(bNameValid);
-	if (!m_wndOutput.Create(strOutputWnd, this, CRect(0, 0, 100, 100), TRUE, ID_VIEW_OUTPUTWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI))
+	if (!m_wndOutput.Create(strOutputWnd, this, CRect(0, 0, 100, 100), TRUE, ID_VIEW_OUTPUTWND, WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI))
 	{
 		TRACE0("未能创建输出窗口\n");
 		return FALSE; // 未能创建
@@ -408,13 +408,15 @@ void CMainFrame::OnViewOutputWindow()
 {
 	// 显示或激活窗格，具体取决于当前状态。
 	// 只能通过窗格帧上的 [x] 按钮关闭窗格。
+
 	m_wndOutput.ShowPane(TRUE, FALSE, TRUE);
 	m_wndOutput.SetFocus();
 }
 
 void CMainFrame::OnUpdateViewOutputWindow(CCmdUI* pCmdUI)
 {
-	pCmdUI->Enable(TRUE);
+	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
+	pCmdUI->Enable(pDoc->_explore_status._sel_status == 2);
 }
 
 
@@ -456,8 +458,9 @@ void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
 {
 	// TODO: Add your specialized code here and/or call the base class
-	if (nID == IDU_FRESHEXPLORER){
-		if (m_wndFileView.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo)){
+	if (nID == IDU_FRESHEXPLORER || nID == IDU_FRESHDATA){
+		if (m_wndFileView.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo) ||
+			m_wndOutput.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo)){
 			return TRUE;
 		}
 	}

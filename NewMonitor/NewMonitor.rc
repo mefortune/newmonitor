@@ -17,7 +17,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Chinese (Simplified, PRC) resources
+// 中文(简体，中国) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
@@ -132,11 +132,6 @@ BEGIN
     BUTTON      ID_APP_ABOUT
 END
 
-IDR_SORT TOOLBAR 16, 15
-BEGIN
-    BUTTON      ID_SORT_MENU
-    BUTTON      ID_NEW_FOLDER
-END
 
 IDR_EXPLORER TOOLBAR 16, 15
 BEGIN
@@ -494,8 +489,8 @@ END
 STRINGTABLE
 BEGIN
     IDS_FILE_VIEW           "数据文件"
-    IDS_CLASS_VIEW          "类视图"
-    IDS_OUTPUT_WND          "输出"
+    IDS_CLASS_VIEW          "占位"
+    IDS_OUTPUT_WND          "采样数据"
 END
 
 STRINGTABLE
@@ -507,12 +502,12 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_BUILD_TAB           "生成"
-    IDS_DEBUG_TAB           "调试"
-    IDS_FIND_TAB            "查找"
+    IDS_BUILD_TAB           "数据"
+    IDS_DEBUG_TAB           "占位"
+    IDS_FIND_TAB            "占位"
 END
 
-#endif    // Chinese (Simplified, PRC) resources
+#endif    // 中文(简体，中国) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
