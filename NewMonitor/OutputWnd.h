@@ -1,5 +1,7 @@
 
 #pragma once
+#include <string>
+#include <vector>
 
 /////////////////////////////////////////////////////////////////////////////
 // COutputList ´°¿Ú
@@ -16,7 +18,7 @@ public:
 
 protected:
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
-
+	afx_msg void OnSelChangeData(NMHDR* pNMHDR, LRESULT* pResult);
 	DECLARE_MESSAGE_MAP()
 };
 
@@ -38,6 +40,7 @@ protected:
 	COutputList m_wndOutputFind;
 
 protected:
+	std::wstring ConvertVectorToString(const std::vector<char>& data);
 
 // ÊµÏÖ
 public:
@@ -47,7 +50,7 @@ protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnFreshData();
-
+	
 	DECLARE_MESSAGE_MAP()
 };
 

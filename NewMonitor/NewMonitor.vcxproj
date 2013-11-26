@@ -48,8 +48,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)boost;</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(SolutionDir)boost\stage\lib;</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)boost;$(SolutionDir)chartdirector\include;</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(SolutionDir)boost\stage\lib;$(SolutionDir)chartdirector\lib;</LibraryPath>
     <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -111,6 +111,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\chartdirector\include\ChartViewer.h" />
     <ClInclude Include="ClassView.h" />
     <ClInclude Include="FileView.h" />
     <ClInclude Include="include\AsyncSerial.h" />
@@ -126,11 +127,14 @@
     <ClInclude Include="NewMonitorView.h" />
     <ClInclude Include="OutputWnd.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="SerialConfigDlg.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="SystemConfigDlg.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="ViewTree.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\chartdirector\include\ChartViewer.cpp" />
     <ClCompile Include="ClassView.cpp" />
     <ClCompile Include="FileView.cpp" />
     <ClCompile Include="MainFrm.cpp" />
@@ -138,6 +142,7 @@
     <ClCompile Include="NewMonitorDoc.cpp" />
     <ClCompile Include="NewMonitorView.cpp" />
     <ClCompile Include="OutputWnd.cpp" />
+    <ClCompile Include="SerialConfigDlg.cpp" />
     <ClCompile Include="src\AsyncSerial.cpp" />
     <ClCompile Include="src\crc16wrapper.cpp" />
     <ClCompile Include="src\datamanager.cpp" />
@@ -147,6 +152,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="SystemConfigDlg.cpp" />
     <ClCompile Include="ViewTree.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -59,6 +59,8 @@ protected:
 	afx_msg void OnSerialConnect();
 	afx_msg void OnSerialDisconnect();
 	afx_msg void OnSerialSyncTime();
+	afx_msg void OnSerialConfig();
+	afx_msg void OnSystemConfig();
 	afx_msg void OnFileOpen();
 	DECLARE_MESSAGE_MAP()
 

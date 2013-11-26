@@ -38,7 +38,12 @@ public:
 public:
 	struct SYSTEM_SETTINGS{
 		// com settings
-		std::string _com_port{"COM4"};
+		int  _com_port{1};
+
+		int  device_type[3];		//压力，位移，流量   0--> 0 ~ 5V  1--> 1 ~ 5V
+		int  device_range[3];       //压力，位移，流量   量程
+
+		int  coordinate_type[3];    //横，左，纵   0--》压力  1---》位移/流量  2-->时间/无
 	}_system_settings;
 
 	struct EXPLORE_STATUS{
@@ -46,6 +51,7 @@ public:
 		std::wstring	_sel_filename;
 		unsigned		_sel_tableid;
 
+		int				_sel_data_id;
 		std::map<int/*data_id*/, std::tuple<int/*seg_id*/, std::vector<char>/*data*/, std::tm/*data_time*/>> _data_info;
 		std::map<std::wstring/*filename*/, std::map<int, std::tuple<std::wstring/*displayname*/, std::wstring/*description*/, std::wstring/*table_name*/>>> _file_map;
 	}_explore_status;

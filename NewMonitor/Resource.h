@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ 生成的包含文件。
-// 供 NewMonitor.rc 使用
+// Microsoft Visual C++ generated include file.
+// Used by NewMonitor.rc
 //
 #define IDD_ABOUTBOX                    100
 #define IDP_OLE_INIT_FAILED             100
@@ -81,9 +81,29 @@
 #define ID_SERIAL_CONFIG                314
 #define IDB_USER_BITMAP                 314
 #define ID_DATA_ADDTABLE                315
+#define IDD_SERIAL_CONFIG               315
 #define ID_DATA_DELTABLE                316
+#define IDD_SYSTEM_CONFIG               316
 #define IDU_FRESHEXPLORER               317
 #define IDU_FRESHDATA                   318
+#define IDU_FRESHMAP                    320
+#define ID_SYSTEM_CONFIG                321
+#define IDC_SERIALSEL                   1000
+#define IDC_EDIT1                       1002
+#define IDC_COMBO1                      1003
+#define IDC_EDIT2                       1004
+#define IDC_COMBO2                      1005
+#define IDC_EDIT3                       1006
+#define IDC_COMBO3                      1007
+#define IDC_RADIOA4                     1008
+#define IDC_RADIOA1                     1009
+#define IDC_RADIOA2                     1010
+#define IDC_RADIOB1                     1011
+#define IDC_RADIOB2                     1012
+#define IDC_RADIOC1                     1013
+#define IDC_RADIOC2                     1014
+#define IDC_RADIOB3                     1015
+#define IDC_RADIOC3                     1016
 #define ID_Menu                         32771
 #define ID_32772                        32772
 #define ID_Menu32779                    32779
@@ -95,14 +115,24 @@
 #define ID_Menu32785                    32785
 #define ID_DATA_EDITTABLE               32786
 #define ID_DATA_EDITINFO                32787
+#define ID_32788                        32788
+#define ID_32789                        32789
+#define ID_32790                        32790
+#define ID_32791                        32791
+#define ID_32792                        32792
+#define ID_32793                        32793
+#define ID_32794                        32794
+#define ID_IMAGE_ARRAY                  32795
+#define ID_IMAGE_LARGE                  32796
+#define ID_IMAGE_SMALL                  32797
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        315
-#define _APS_NEXT_COMMAND_VALUE         32788
-#define _APS_NEXT_CONTROL_VALUE         1000
-#define _APS_NEXT_SYMED_VALUE           319
+#define _APS_NEXT_RESOURCE_VALUE        317
+#define _APS_NEXT_COMMAND_VALUE         32798
+#define _APS_NEXT_CONTROL_VALUE         1009
+#define _APS_NEXT_SYMED_VALUE           322
 #endif
 #endif

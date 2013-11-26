@@ -84,6 +84,15 @@
     <ClInclude Include="include\sql_template.h">
       <Filter>Header Files\DataWrapper</Filter>
     </ClInclude>
+    <ClInclude Include="SerialConfigDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\chartdirector\include\ChartViewer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemConfigDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NewMonitor.cpp">
@@ -127,6 +136,15 @@
     </ClCompile>
     <ClCompile Include="src\serialmanager.cpp">
       <Filter>Source Files\SerialWrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="SerialConfigDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\chartdirector\include\ChartViewer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemConfigDlg.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

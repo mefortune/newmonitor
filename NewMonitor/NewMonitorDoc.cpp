@@ -50,6 +50,7 @@ BOOL CNewMonitorDoc::OnNewDocument()
 
 	// TODO:  在此添加重新初始化代码
 	// (SDI 文档将重用该文档
+	_system_settings._com_port = theApp.GetInt(L"SERIALPORT", 1);
 	return TRUE;
 }
 

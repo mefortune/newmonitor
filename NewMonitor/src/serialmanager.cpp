@@ -3,7 +3,8 @@
 
 #include "../include/AsyncSerial.h"
 #include "../include/crc16wrapper.h"
-
+#include "../NewMonitorDoc.h"
+#include "../include/datamanager.h"
 
 #include <algorithm>
 
@@ -71,26 +72,26 @@ std::vector<char> SerialManager::PickCommand()
 	// the first data in _data_vec must be 0xFF
 	std::vector<char>::iterator cmd_head = std::find(_data_vec.begin(), _data_vec.end(), data_head);
 	_data_vec.erase(_data_vec.begin(), cmd_head);
-	if (_data_vec.size() < 7){
+	if (_data_vec.size() < 8){
 		return std::vector<char>{};
 	}
 	char cmd_type = _data_vec[2];
 	size_t cmd_size = 0;
 	switch (cmd_type){
 	case data_start_cmd_flag:
-		cmd_size = 13;
+		cmd_size = 14;
 		break;
 	case data_length_cmd_flag:
-		cmd_size = 9;
+		cmd_size = 10;
 		break;
 	case data_trans_cmd_flag:
 		{
 			size_t data_count = static_cast<size_t>(static_cast<unsigned char>(_data_vec[6]));
-			cmd_size = 10 + data_count * 2;
+			cmd_size = 11 + data_count * 2;
 		}
 		break;
 	case data_end_cmd_flag:
-		cmd_size = 7;
+		cmd_size = 8;
 		break;
 	}
 	if (cmd_size == 0){
@@ -102,7 +103,7 @@ std::vector<char> SerialManager::PickCommand()
 		LogEvent("命令提取错误", Event_Data_Error, HexToString(_data_vec).c_str(), Event_Log);
 		return std::vector<char>{};
 	}
-	if (_data_vec[cmd_size - 1] != data_tail){
+	if (_data_vec[cmd_size - 2] != data_tail || _data_vec[cmd_size - 1] != data_head){
 		LogEvent("命令提取错误", Event_Data_Error, HexToString(_data_vec).c_str(), Event_Log);
 		_data_vec.erase(_data_vec.begin()); // should not happen, so remove the 0xFF;
 		return std::vector<char>{};
@@ -115,7 +116,7 @@ std::vector<char> SerialManager::PickCommand()
 
 void SerialManager::HandleCommand(std::vector<char>& cmd)
 {
-	std::vector<char> cmd_data{ cmd.begin() + 1, cmd.end() - 1 };
+	std::vector<char> cmd_data{ cmd.begin() + 1, cmd.end() - 2 };
 	if (!_crc_wrapper->VerifyCRCData(cmd_data)){
 		LogEvent("数据校验错误", Event_Data_Error, HexToString(cmd).c_str(), Event_Log);
 		return;
@@ -193,6 +194,18 @@ void SerialManager::HandleCompleteData()
 		return;
 	}
 	
+	DataManager* data_manager = DataManager::GetInstance();
+	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
+
+	if (pDoc->_explore_status._sel_status == 2){
+		std::wstring filename = pDoc->_explore_status._sel_filename;
+		int table_id = pDoc->_explore_status._sel_tableid;
+		if (table_id != 0){
+			data_manager->InsertData(filename,
+				std::get<2>(pDoc->_explore_status._file_map[filename][table_id]),
+				_data_transmission._data_no, _data_transmission._data_time, data);
+		}
+	}
 
 	OutputDebugStringA(HexToString(data).c_str());
 }

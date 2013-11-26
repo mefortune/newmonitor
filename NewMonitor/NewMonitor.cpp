@@ -12,6 +12,7 @@
 #include "NewMonitorView.h"
 #include "include\datamanager.h"
 
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -185,7 +186,6 @@ void CNewMonitorApp::OnAppAbout()
 
 void CNewMonitorApp::PreLoadState()
 {
-	CleanState();
 
 	BOOL bNameValid;
 	CString strName;
@@ -203,6 +203,8 @@ void CNewMonitorApp::LoadCustomState()
 
 void CNewMonitorApp::SaveCustomState()
 {
+	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
+	theApp.WriteInt(L"SERIALPORT", pDoc->_system_settings._com_port);
 }
 
 // CNewMonitorApp 消息处理程序

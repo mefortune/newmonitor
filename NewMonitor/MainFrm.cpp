@@ -8,9 +8,11 @@
 #include "MainFrm.h"
 #include "NewMonitorDoc.h"
 
+
 #include "include\serialmanager.h"
 #include "include\datamanager.h"
-
+#include "SerialConfigDlg.h"
+#include "SystemConfigDlg.h"
 #include <boost/system/system_error.hpp>
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -41,6 +43,11 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_SERIAL_CONNECT, &CMainFrame::OnSerialConnect)
 	ON_COMMAND(ID_SERIAL_DISCONNECT, &CMainFrame::OnSerialDisconnect)
 	ON_COMMAND(ID_SERIAL_SYNCTIME, &CMainFrame::OnSerialSyncTime)
+	ON_COMMAND(ID_SERIAL_CONFIG, &CMainFrame::OnSerialConfig)
+	
+	//系统配置操作
+	ON_COMMAND(ID_SYSTEM_CONFIG, &CMainFrame::OnSystemConfig)
+
 	// 文件操作
 	ON_COMMAND(ID_FILE_OPEN, &CMainFrame::OnFileOpen)
 
@@ -187,7 +194,11 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	lstBasicCommands.AddTail(ID_SORTING_SORTBYTYPE);
 	lstBasicCommands.AddTail(ID_SORTING_SORTBYACCESS);
 	lstBasicCommands.AddTail(ID_SORTING_GROUPBYTYPE);
-
+	lstBasicCommands.AddTail(ID_SERIAL_CONNECT);
+	lstBasicCommands.AddTail(ID_SERIAL_DISCONNECT);
+	lstBasicCommands.AddTail(ID_SERIAL_SYNCTIME);
+	lstBasicCommands.AddTail(ID_SERIAL_CONFIG);
+	lstBasicCommands.AddTail(ID_SYSTEM_CONFIG);
 	CMFCToolBar::SetBasicCommands(lstBasicCommands);
 
 	return 0;
@@ -410,7 +421,6 @@ void CMainFrame::OnViewOutputWindow()
 	// 只能通过窗格帧上的 [x] 按钮关闭窗格。
 
 	m_wndOutput.ShowPane(TRUE, FALSE, TRUE);
-	m_wndOutput.SetFocus();
 }
 
 void CMainFrame::OnUpdateViewOutputWindow(CCmdUI* pCmdUI)
@@ -474,7 +484,9 @@ void CMainFrame::OnSerialConnect()
 
 	SerialManager *serial_manager = SerialManager::GetInstance();
 	try{
-		serial_manager->open(pDoc->_system_settings._com_port);
+		char com_port[10];
+		sprintf_s(com_port, "COM%1d", pDoc->_system_settings._com_port);
+		serial_manager->open(std::string{ com_port });
 	}
 	catch (boost::system::system_error &e){
 		LogEvent("连接失败", e.code().value(), e.what(), Event_Alert | Event_Log);
@@ -491,7 +503,6 @@ void CMainFrame::OnSerialDisconnect()
 	catch (boost::system::system_error &e){
 		LogEvent("断开失败", e.code().value(), e.what(), Event_Alert | Event_Log);
 	}
-	
 }
 
 void CMainFrame::OnSerialSyncTime()
@@ -502,7 +513,9 @@ void CMainFrame::OnSerialSyncTime()
 		CNewMonitorDoc *pDoc = CNewMonitorDoc::GetDoc();
 
 		try{
-			serial_manager->open(pDoc->_system_settings._com_port);
+			char com_port[20];
+			sprintf_s(com_port, "COM%1d", pDoc->_system_settings._com_port);
+			serial_manager->open(std::string{ com_port });
 		}
 		catch (boost::system::system_error &e){
 			LogEvent("连接失败", e.code().value(), e.what(), Event_Alert | Event_Log);
@@ -511,6 +524,17 @@ void CMainFrame::OnSerialSyncTime()
 	serial_manager->SyncTime();
 }
 
+void CMainFrame::OnSerialConfig()
+{
+	CSerialConfigDlg dlg;
+	dlg.DoModal();
+}
+
+void CMainFrame::OnSystemConfig()
+{
+	CSystemConfigDlg dlg;
+	dlg.DoModal();
+}
 void CMainFrame::OnFileOpen()
 {
 	CFileDialog file_dialog(TRUE, L"db", NULL, OFN_HIDEREADONLY, L"数据库文件 (*.db)|*.db||");
