@@ -43,7 +43,7 @@ public:
 		int  device_type[3];		//压力，位移，流量   0--> 0 ~ 5V  1--> 1 ~ 5V
 		int  device_range[3];       //压力，位移，流量   量程
 
-		int  coordinate_type[3];    //横，左，纵   0--》压力  1---》位移/流量  2-->时间/无
+		int  coordinate_type[3];    //横，左，右   横（0--》时间 1--》左通道 2--》右通道 ） 左/右（0--》压力 1--》位移 2--》流量）
 	}_system_settings;
 
 	struct EXPLORE_STATUS{

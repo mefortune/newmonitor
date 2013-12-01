@@ -28,7 +28,9 @@ protected:
 	void DrawChart();
 	void UpdateImageMap();
 
-	std::vector<std::tuple<double, double, double>> ParseData(const std::vector<char>& data, short type1, short type2); // type: 0->压力  1->位移 2->流量
+	void FetchData();
+private:
+	std::vector<std::tuple<double, double, double>> _image_data;
 // 实现
 public:
 	virtual ~CNewMonitorView();

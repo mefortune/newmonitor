@@ -186,7 +186,6 @@ void CNewMonitorApp::OnAppAbout()
 
 void CNewMonitorApp::PreLoadState()
 {
-
 	BOOL bNameValid;
 	CString strName;
 	bNameValid = strName.LoadString(IDS_EDIT_MENU);
@@ -205,6 +204,18 @@ void CNewMonitorApp::SaveCustomState()
 {
 	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
 	theApp.WriteInt(L"SERIALPORT", pDoc->_system_settings._com_port);
+
+	theApp.WriteInt(L"DEVICETYPE0", pDoc->_system_settings.device_type[0]);
+	theApp.WriteInt(L"DEVICETYPE1", pDoc->_system_settings.device_type[1]);
+	theApp.WriteInt(L"DEVICETYPE2", pDoc->_system_settings.device_type[2]);
+
+	theApp.WriteInt(L"DEVICERANGE0", pDoc->_system_settings.device_range[0]);
+	theApp.WriteInt(L"DEVICERANGE1", pDoc->_system_settings.device_range[1]);
+	theApp.WriteInt(L"DEVICERANGE2", pDoc->_system_settings.device_range[2]);
+
+	theApp.WriteInt(L"COORDINATE0", pDoc->_system_settings.coordinate_type[0]);
+	theApp.WriteInt(L"COORDINATE1", pDoc->_system_settings.coordinate_type[1]);
+	theApp.WriteInt(L"COORDINATE2", pDoc->_system_settings.coordinate_type[2]);
 }
 
 // CNewMonitorApp 消息处理程序

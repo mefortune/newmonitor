@@ -17,6 +17,7 @@
 #define new DEBUG_NEW
 #endif
 
+#pragma comment(lib, "chartdir51.lib")
 
 // CNewMonitorView
 
@@ -134,101 +135,235 @@ void CNewMonitorView::OnSize(UINT nType, int cx, int cy)
 
 void CNewMonitorView::OnFreshMap()
 {
+	FetchData();
+	m_chart.setZoomDirection(Chart::DirectionHorizontalVertical);
+	m_chart.setScrollDirection(Chart::DirectionHorizontalVertical);
+
+	m_chart.setViewPortLeft(0.0);
+	m_chart.setViewPortTop(0.0);
+	m_chart.setViewPortWidth(1.0);
+	m_chart.setViewPortHeight(1.0);
+	
 	m_chart.updateViewPort(true, true);
 }
 
-void CNewMonitorView::DrawChart()
+void CNewMonitorView::OnViewPortChanged()
 {
+	if (m_chart.needUpdateChart())
+		DrawChart();
+	if (m_chart.needUpdateImageMap())
+		UpdateImageMap();
+}
+
+void CNewMonitorView::UpdateImageMap()
+{
+	if (nullptr == m_chart.getImageMapHandler() && m_chart.getChart() != nullptr)
+	{
+		CNewMonitorDoc *pDoc = GetDocument();
+		int type_left = pDoc->_system_settings.coordinate_type[1];
+		int type_right = pDoc->_system_settings.coordinate_type[2];
+
+		std::wstring name_left, name_right;
+		switch (type_left){
+		case 0:
+			name_left = L"左通道（压力）:{x|2}'";
+			break;
+		case 1:
+			name_left = L"左通道（位移）:{x|2}'";
+			break;
+		case 2:
+			name_left = L"左通道（流量）:{x|2}'";
+			break;
+		}
+		switch (type_right){
+		case 0:
+			name_right = L"右通道（压力）:{x|2}'";
+			break;
+		case 1:
+			name_right = L"右通道（位移）:{x|2}'";
+			break;
+		case 2:
+			name_right = L"右通道（流量）:{x|2}'";
+			break;
+		}
+
+		switch (pDoc->_system_settings.coordinate_type[0]){
+		case 0:
+			m_chart.setImageMap(m_chart.getChart()->getHTMLImageMap("", "",
+				TCHARtoUTF8(L"title='{dataSetName}:{value|2}\n时间:{x|2}'")));
+			break;
+		case 1:
+			m_chart.setImageMap(m_chart.getChart()->getHTMLImageMap("", "",
+				TCHARtoUTF8((std::wstring{L"title='{dataSetName}:{value|2}\n"}
+			+name_left).c_str()
+			)));
+			break;
+		case 2:
+			m_chart.setImageMap(m_chart.getChart()->getHTMLImageMap("", "",
+				TCHARtoUTF8((std::wstring{ L"title='{dataSetName}:{value|2}\n" }
+			+name_left).c_str()
+			)));
+			break;
+		}
+		
+	}
+}
+
+void CNewMonitorView::FetchData()
+{
+	_image_data.clear();
 	CNewMonitorDoc *pDoc = GetDocument();
 
 	if (pDoc->_explore_status._sel_status != 2){
 		return;
 	}
 	const std::vector<char>& data = std::get<1>(pDoc->_explore_status._data_info[pDoc->_explore_status._sel_data_id]);
-	std::tm data_time = std::get<2>(pDoc->_explore_status._data_info[pDoc->_explore_status._sel_data_id]);
-
-	std::vector<std::tuple<double, double, double>> parsed_data = ParseData(data, 0, 1);
-	RECT client_rect;
-	GetClientRect(&client_rect);
-	XYChart *c = new XYChart(client_rect.right - client_rect.left, client_rect.bottom - client_rect.top);
-	c->setPlotArea(50, 50, client_rect.right - client_rect.left - 100, client_rect.bottom - client_rect.top - 100);
-	
-	std::vector<double> value_1, value_2, value_3;
-
-	if (pDoc->_system_settings.coordinate_type[0] == 0){
-		std::sort(parsed_data.begin(), parsed_data.end(),
-			[](const std::tuple<double, double, double>&a, const std::tuple<double, double, double>&b){
-			return std::get<2>(a) < std::get<2>(b);
-		});
-		for (auto data : parsed_data){
-			value_1.push_back(std::get<0>(data));
-			value_2.push_back(std::get<1>(data));
-			value_3.push_back(std::get<2>(data));
-		}
-		if (pDoc->_system_settings.coordinate_type[1] == 0){
-			auto line = c->addLineLayer(DoubleArray(value_1.data(), value_1.size()),
-				0xc00000);
-			line->setXData(DoubleArray(value_3.data(), value_3.size()));
-			line->setLineWidth(3);
-		}
-		else if (pDoc->_system_settings.coordinate_type[1] == 1){
-			auto line = c->addLineLayer(DoubleArray(value_2.data(), value_2.size()),
-				0xc00000);
-			line->setXData(DoubleArray(value_3.data(), value_3.size()));
-			line->setLineWidth(3);
-		}
-		if (pDoc->_system_settings.coordinate_type[2] == 0){
-			auto line = c->addLineLayer(DoubleArray(value_1.data(), value_1.size()),
-				0xc00000);
-			line->setXData(DoubleArray(value_3.data(), value_3.size()));
-			line->setUseYAxis2();
-			line->setLineWidth(3);
-		}
-		else if (pDoc->_system_settings.coordinate_type[2] == 1){
-			auto line = c->addLineLayer(DoubleArray(value_2.data(), value_2.size()),
-				0xc00000);
-			line->setXData(DoubleArray(value_3.data(), value_3.size()));
-			line->setUseYAxis2();
-			line->setLineWidth(3);
-		}
-	}
-
-	m_chart.syncDateAxisWithViewPort("x", c->xAxis());
-	delete m_chart.getChart();
-	m_chart.setChart(c);
-
-}
-void CNewMonitorView::UpdateImageMap()
-{
-	if (nullptr == m_chart.getImageMapHandler() && m_chart.getChart() != nullptr)
-	{
-		m_chart.setImageMap(m_chart.getChart()->getHTMLImageMap("", "",
-			"title='[{dataSetName}]  value {value|2}'"));
-	}
-
-}
-std::vector<std::tuple<double, double, double>> CNewMonitorView::ParseData(const std::vector<char>& data, short type1, short type2) // type: 0->压力  1->位移 2->流量
-{
-	std::vector<std::tuple<double, double, double>> temp{};
 	if (data.size() % 4 != 0){
-		return temp;
+		return;
 	}
 
-	CNewMonitorDoc *pDoc = GetDocument();
-	unsigned int low_val_1 = pDoc->_system_settings.device_type[type1] == 0 ? 0 : 819;
-	unsigned int low_val_2 = pDoc->_system_settings.device_type[type2] == 0 ? 0 : 819;
+	int type_left = pDoc->_system_settings.coordinate_type[1];
+	int type_right = pDoc->_system_settings.coordinate_type[2];
+	unsigned int low_val_1 = pDoc->_system_settings.device_type[type_left] == 0 ? 0 : 819;
+	unsigned int low_val_2 = pDoc->_system_settings.device_type[type_right] == 0 ? 0 : 819;
 
 	double start_time = 0.0;
 	for (std::vector<char>::const_iterator it = data.begin(); it != data.end(); it += 4, start_time += 0.1){
 		uint16_t value_1 = MAKEWORD(*it, *(it + 1));
 		uint16_t value_2 = MAKEWORD(*(it + 2), *(it + 3));
 
-		double parsed_value_1 = (value_1 - low_val_1) * 1.0 / (4095 - low_val_1) * pDoc->_system_settings.device_range[type1];
-		double parsed_value_2 = (value_2 - low_val_2) * 1.0 / (4095 - low_val_2) * pDoc->_system_settings.device_range[type2];
-		temp.push_back(std::make_tuple(parsed_value_1, parsed_value_2, start_time));
+		double parsed_value_1 = (value_1 - low_val_1) * 1.0 / (4095 - low_val_1) * pDoc->_system_settings.device_range[type_left];
+		double parsed_value_2 = (value_2 - low_val_2) * 1.0 / (4095 - low_val_2) * pDoc->_system_settings.device_range[type_right];
+		_image_data.push_back(std::make_tuple(parsed_value_1, parsed_value_2, start_time));
+	}
+}
+
+void CNewMonitorView::DrawChart()
+{
+	if (_image_data.size() == 0){
+		delete m_chart.getChart();
+		m_chart.setChart(nullptr);
+		return;
 	}
 
-	return temp;
+	RECT client_rect;
+	GetClientRect(&client_rect);
+
+	XYChart *c = new XYChart(client_rect.right - client_rect.left, client_rect.bottom - client_rect.top);
+	c->setPlotArea(50, 50, client_rect.right - client_rect.left - 100, client_rect.bottom - client_rect.top - 100);
+
+	CNewMonitorDoc *pDoc = GetDocument();
+	switch (pDoc->_system_settings.coordinate_type[0]){
+	case 0:
+		std::sort(_image_data.begin(), _image_data.end(),
+			[](const std::tuple<double, double, double>&a, const std::tuple<double, double, double>&b){
+			return std::get<2>(a) < std::get<2>(b);
+		});
+		break;
+	case 1:
+		std::sort(_image_data.begin(), _image_data.end(),
+			[](const std::tuple<double, double, double>&a, const std::tuple<double, double, double>&b){
+			return std::get<0>(a) < std::get<0>(b);
+		});
+		break;
+	case 2:
+		std::sort(_image_data.begin(), _image_data.end(),
+			[](const std::tuple<double, double, double>&a, const std::tuple<double, double, double>&b){
+			return std::get<1>(a) < std::get<1>(b);
+		});
+		break;
+	}
+
+	int type_left = pDoc->_system_settings.coordinate_type[1];
+	int type_right = pDoc->_system_settings.coordinate_type[2];
+
+	int max_value_left = pDoc->_system_settings.device_range[type_left];
+	int max_value_right = pDoc->_system_settings.device_range[type_right];
+
+	std::wstring name_left, name_right;
+	switch (type_left){
+	case 0:
+		name_left = L"左通道（压力）";
+		break;
+	case 1:
+		name_left = L"左通道（位移）";
+		break;
+	case 2:
+		name_left = L"左通道（流量）";
+		break;
+	}
+	switch (type_right){
+	case 0:
+		name_right = L"右通道（压力）";
+		break;
+	case 1:
+		name_right = L"右通道（位移）";
+		break;
+	case 2:
+		name_right = L"右通道（流量）";
+		break;
+	}
+
+	std::vector<double> value_1, value_2, value_3;	//左通道 右通道 时间
+	for (auto data : _image_data){
+		value_1.push_back(std::get<0>(data));
+		value_2.push_back(std::get<1>(data));
+		value_3.push_back(std::get<2>(data));
+	}
+
+	switch (pDoc->_system_settings.coordinate_type[0]){
+		case 0:{
+			auto line_l = c->addLineLayer(DoubleArray(value_1.data(), value_1.size()), 0xc00000, TCHARtoUTF8(name_left.c_str()));
+			line_l->setXData(DoubleArray(value_3.data(), value_3.size()));
+			line_l->setLineWidth(3);
+
+			auto line_r = c->addLineLayer(DoubleArray(value_2.data(), value_2.size()), 0xc00000, TCHARtoUTF8(name_right.c_str()));
+			line_r->setXData(DoubleArray(value_3.data(), value_3.size()));
+			line_r->setLineWidth(3);
+			line_r->setUseYAxis2();
+
+			m_chart.setFullRange("x", 0, (static_cast<int>(value_3.back() / 120) + 1) * 120);
+			m_chart.setFullRange("y1", 0, max_value_left);
+			m_chart.setFullRange("y2", 0, max_value_right);
+		}
+			break;
+		case 1:{
+			auto line_r = c->addLineLayer(DoubleArray(value_2.data(), value_2.size()), 0xc00000, TCHARtoUTF8(name_right.c_str()));
+			line_r->setXData(DoubleArray(value_1.data(), value_1.size()));
+			line_r->setLineWidth(3);
+			line_r->setUseYAxis2();
+
+			m_chart.setFullRange("x", 0, max_value_left);
+			m_chart.setFullRange("y2", 0, max_value_right);
+		}	
+			break;
+		case 2:{
+			auto line_l = c->addLineLayer(DoubleArray(value_1.data(), value_1.size()), 0xc00000, TCHARtoUTF8(name_left.c_str()));
+			line_l->setXData(DoubleArray(value_2.data(), value_2.size()));
+			line_l->setLineWidth(3);
+
+			m_chart.setFullRange("x", 0, max_value_right);
+			m_chart.setFullRange("y1", 0, max_value_left);
+		}
+		break;
+	}
+
+	m_chart.syncLinearAxisWithViewPort("x", c->xAxis());
+	switch (pDoc->_system_settings.coordinate_type[0]){
+	case 0:
+		m_chart.syncLinearAxisWithViewPort("y1", c->yAxis());
+		m_chart.syncLinearAxisWithViewPort("y2", c->yAxis2());
+		break;
+	case 1:
+		m_chart.syncLinearAxisWithViewPort("y2", c->yAxis2());
+		break;
+	case 2:
+		m_chart.syncLinearAxisWithViewPort("y1", c->yAxis());
+		break;
+	}
+
+	delete m_chart.getChart();
+	m_chart.setChart(c);
 }
 
 void CNewMonitorView::OnImageArray()
@@ -244,10 +379,4 @@ void CNewMonitorView::OnImageSmall()
 	m_chart.setMouseUsage(Chart::MouseUsageZoomOut);
 }
 
-void CNewMonitorView::OnViewPortChanged()
-{
-	if (m_chart.needUpdateChart())
-		DrawChart();
-	if (m_chart.needUpdateImageMap())
-		UpdateImageMap();
-}
+

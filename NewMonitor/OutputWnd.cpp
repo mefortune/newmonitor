@@ -46,9 +46,9 @@ int COutputWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// 创建输出窗格: 
 	const DWORD dwStyle = WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS | LVS_SINGLESEL;
 
-	if (!m_wndOutputData.Create(dwStyle, rectDummy, &m_wndTabs, 2) ||
+	if (!m_wndOutputData.Create(dwStyle, rectDummy, &m_wndTabs, 2) /*||
 		!m_wndOutputDebug.Create(dwStyle, rectDummy, &m_wndTabs, 3) ||
-		!m_wndOutputFind.Create(dwStyle, rectDummy, &m_wndTabs, 4))
+		!m_wndOutputFind.Create(dwStyle, rectDummy, &m_wndTabs, 4)*/)
 	{
 		TRACE0("未能创建输出窗口\n");
 		return -1;      // 未能创建
@@ -63,12 +63,12 @@ int COutputWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	bNameValid = strTabName.LoadString(IDS_BUILD_TAB);
 	ASSERT(bNameValid);
 	m_wndTabs.AddTab(&m_wndOutputData, strTabName, (UINT)0);
-	bNameValid = strTabName.LoadString(IDS_DEBUG_TAB);
+	/*bNameValid = strTabName.LoadString(IDS_DEBUG_TAB);
 	ASSERT(bNameValid);
 	m_wndTabs.AddTab(&m_wndOutputDebug, strTabName, (UINT)1);
 	bNameValid = strTabName.LoadString(IDS_FIND_TAB);
 	ASSERT(bNameValid);
-	m_wndTabs.AddTab(&m_wndOutputFind, strTabName, (UINT)2);
+	m_wndTabs.AddTab(&m_wndOutputFind, strTabName, (UINT)2);*/
 
 	m_wndOutputData.SetExtendedStyle(LVS_EX_FULLROWSELECT);
 	m_wndOutputData.InsertColumn(0, L"序号", LVCFMT_CENTER, -1, -1);
@@ -140,8 +140,8 @@ void COutputWnd::OnSize(UINT nType, int cx, int cy)
 void COutputWnd::UpdateFonts()
 {
 	m_wndOutputData.SetFont(&afxGlobalData.fontRegular);
-	m_wndOutputDebug.SetFont(&afxGlobalData.fontRegular);
-	m_wndOutputFind.SetFont(&afxGlobalData.fontRegular);
+	/*m_wndOutputDebug.SetFont(&afxGlobalData.fontRegular);
+	m_wndOutputFind.SetFont(&afxGlobalData.fontRegular);*/
 }
 
 /////////////////////////////////////////////////////////////////////////////

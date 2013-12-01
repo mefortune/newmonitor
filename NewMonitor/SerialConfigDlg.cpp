@@ -45,7 +45,13 @@ BOOL CSerialConfigDlg::OnInitDialog()
 	m_serial_sel.InsertString(1, L"COM2");
 	m_serial_sel.InsertString(2, L"COM3");
 	m_serial_sel.InsertString(3, L"COM4");
-	
+	m_serial_sel.InsertString(4, L"COM5");
+	m_serial_sel.InsertString(5, L"COM6");
+	m_serial_sel.InsertString(6, L"COM7");
+	m_serial_sel.InsertString(7, L"COM8");
+	m_serial_sel.InsertString(8, L"COM9");
+	m_serial_sel.InsertString(9, L"COM10");
+
 	CNewMonitorDoc *pDoc = CNewMonitorDoc::GetDoc();
 	
 	m_serial_sel.SetCurSel(pDoc->_system_settings._com_port - 1);
