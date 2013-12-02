@@ -121,6 +121,7 @@ int CNewMonitorView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		TRACE0("未能创建图表窗口\n");
 		return -1;      // 未能创建
 	}
+	Chart::setLicenseCode("SXZVFNRN9MZ9L8LGA0E2B1BB");
 	return 0;
 }
 
@@ -317,7 +318,7 @@ void CNewMonitorView::DrawChart()
 			line_l->setXData(DoubleArray(value_3.data(), value_3.size()));
 			line_l->setLineWidth(3);
 
-			auto line_r = c->addLineLayer(DoubleArray(value_2.data(), value_2.size()), 0xc00000, TCHARtoUTF8(name_right.c_str()));
+			auto line_r = c->addLineLayer(DoubleArray(value_2.data(), value_2.size()), 0x00c000, TCHARtoUTF8(name_right.c_str()));
 			line_r->setXData(DoubleArray(value_3.data(), value_3.size()));
 			line_r->setLineWidth(3);
 			line_r->setUseYAxis2();
@@ -338,7 +339,7 @@ void CNewMonitorView::DrawChart()
 		}	
 			break;
 		case 2:{
-			auto line_l = c->addLineLayer(DoubleArray(value_1.data(), value_1.size()), 0xc00000, TCHARtoUTF8(name_left.c_str()));
+			auto line_l = c->addLineLayer(DoubleArray(value_1.data(), value_1.size()), 0x00c000, TCHARtoUTF8(name_left.c_str()));
 			line_l->setXData(DoubleArray(value_2.data(), value_2.size()));
 			line_l->setLineWidth(3);
 
