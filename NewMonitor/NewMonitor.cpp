@@ -186,6 +186,7 @@ void CNewMonitorApp::OnAppAbout()
 
 void CNewMonitorApp::PreLoadState()
 {
+	CleanState();
 	BOOL bNameValid;
 	CString strName;
 	bNameValid = strName.LoadString(IDS_EDIT_MENU);

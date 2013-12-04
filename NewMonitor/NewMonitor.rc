@@ -17,7 +17,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Chinese (Simplified, PRC) resources
+// 中文(简体，中国) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
@@ -138,7 +138,6 @@ BEGIN
     BUTTON      ID_IMAGE_ARRAY
 END
 
-
 IDR_MENU_IMAGES TOOLBAR 16, 15
 BEGIN
     BUTTON      ID_WINDOW_MANAGER
@@ -153,7 +152,6 @@ BEGIN
 END
 
 
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // Menu
@@ -163,7 +161,7 @@ IDR_MAINFRAME MENU
 BEGIN
     POPUP "文件(&F)"
     BEGIN
-        MENUITEM "打开数据库(&O)...\tCtrl+O",        ID_FILE_OPEN
+        MENUITEM "打开/新建数据库(&O)\tCtrl+O",        ID_FILE_OPEN
         MENUITEM SEPARATOR
         MENUITEM "退出(&X)",                      ID_APP_EXIT
     END
@@ -283,19 +281,15 @@ END
 
 IDR_MAINFRAME ACCELERATORS
 BEGIN
-    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL
-    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL
-    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL
-    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL
-    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL
-    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL
-    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL
-    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT
-    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT
-    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL
-    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT
-    VK_F6,          ID_NEXT_PANE,           VIRTKEY 
-    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
+    "C",            ID_SERIAL_CONNECT,      VIRTKEY, CONTROL, NOINVERT
+    "Z",            ID_SERIAL_DISCONNECT,   VIRTKEY, CONTROL, NOINVERT
+    "X",            ID_SERIAL_SYNCTIME,     VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_SERIAL_CONFIG,       VIRTKEY, CONTROL, NOINVERT
+    "A",            ID_SYSTEM_CONFIG,       VIRTKEY, CONTROL, NOINVERT
+    "R",            ID_IMAGE_ARRAY,         VIRTKEY, CONTROL, NOINVERT
+    "L",            ID_IMAGE_LARGE,         VIRTKEY, CONTROL, NOINVERT
+    "M",            ID_IMAGE_SMALL,         VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -320,8 +314,8 @@ STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSM
 CAPTION "通信设置"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,79,7,51,16
-    PUSHBUTTON      "Cancel",IDCANCEL,79,33,51,16
+    DEFPUSHBUTTON   "确定",IDOK,79,7,51,16
+    PUSHBUTTON      "取消",IDCANCEL,79,33,51,16
     COMBOBOX        IDC_SERIALSEL,7,7,68,42,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
 END
 
@@ -345,8 +339,8 @@ BEGIN
     EDITTEXT        IDC_EDIT2,158,47,35,15,ES_AUTOHSCROLL | ES_NUMBER
     COMBOBOX        IDC_COMBO3,84,73,57,33,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     EDITTEXT        IDC_EDIT3,158,72,35,15,ES_AUTOHSCROLL | ES_NUMBER
-    DEFPUSHBUTTON   "OK",IDOK,114,181,48,18
-    PUSHBUTTON      "Cancel",IDCANCEL,174,180,50,20
+    DEFPUSHBUTTON   "确定",IDOK,114,181,48,18
+    PUSHBUTTON      "取消",IDCANCEL,174,180,50,20
     GROUPBOX        "量程设置",IDC_STATIC,2,7,228,90
     GROUPBOX        "",IDC_STATIC,9,16,209,25
     LTEXT           "压力传感器",IDC_STATIC,24,25,45,13
@@ -467,7 +461,7 @@ END
 STRINGTABLE
 BEGIN
     ID_FILE_NEW             "创建新文档\n新建"
-    ID_FILE_OPEN            "打开数据库文件\n打开"
+    ID_FILE_OPEN            "打开/新建数据库文件\n打开"
     ID_FILE_CLOSE           "关闭活动文档\n关闭"
     ID_FILE_SAVE            "保存活动文档\n保存"
     ID_FILE_SAVE_AS         "用新名称保存活动文档\n另存为"
@@ -566,10 +560,10 @@ STRINGTABLE
 BEGIN
     IDS_EXPLORER            "资源管理器"
     IDS_EDIT_MENU           "编辑"
-    ID_SERIAL_CONNECT       "连接串口"
-    ID_SERIAL_DISCONNECT    "断开串口"
-    ID_SERIAL_SYNCTIME      "同步时间"
-    ID_SERIAL_CONFIG        "通信设置"
+    ID_SERIAL_CONNECT       "连接通讯串口,通信数据将存储在当前选择的数据表中\n连接串口"
+    ID_SERIAL_DISCONNECT    "断开通讯串口\n断开串口"
+    ID_SERIAL_SYNCTIME      "下传系统时间至设备\n同步时间"
+    ID_SERIAL_CONFIG        "设置通讯串口号\n通信设置"
 END
 
 STRINGTABLE
@@ -581,17 +575,17 @@ END
 
 STRINGTABLE
 BEGIN
-    ID_SYSTEM_CONFIG        "系统设置"
+    ID_SYSTEM_CONFIG        "设置传感器类型、阈值及数值显示模式\n系统设置"
 END
 
 STRINGTABLE
 BEGIN
-    ID_IMAGE_ARRAY          "拖动图像"
-    ID_IMAGE_LARGE          "放大图像"
-    ID_IMAGE_SMALL          "缩小图像"
+    ID_IMAGE_ARRAY          "拖动图像以浏览\n拖动图像"
+    ID_IMAGE_LARGE          "放大图像以浏览\n放大图像"
+    ID_IMAGE_SMALL          "缩小图像以浏览\n缩小图像"
 END
 
-#endif    // Chinese (Simplified, PRC) resources
+#endif    // 中文(简体，中国) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
