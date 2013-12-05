@@ -49,6 +49,7 @@ bool SerialManager::SyncTime()
 	_crc_wrapper->GenerateCRCData(sync_time_cmd);
 	sync_time_cmd.insert(sync_time_cmd.begin(), data_head);
 	sync_time_cmd.push_back(data_tail);
+	sync_time_cmd.push_back(data_head);
 
 	_serial_wrapper->write(sync_time_cmd);
 

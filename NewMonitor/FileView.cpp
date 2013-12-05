@@ -6,6 +6,8 @@
 #include "NewMonitor.h"
 #include "NewMonitorDoc.h"
 #include "include\datamanager.h"
+#include "descriptionconfigdlg.h"
+
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
@@ -358,7 +360,18 @@ void CFileView::OnEditTable()
 
 void CFileView::OnEditInfo()
 {
+	CNewMonitorDoc* pDoc = CNewMonitorDoc::GetDoc();
+	std::wstring filename = pDoc->_explore_status._sel_filename.c_str();
+	int table_id = pDoc->_explore_status._sel_tableid;
 
+	CDescriptionConfigDlg dlg;
+	dlg.m_dataname = std::get<0>(pDoc->_explore_status._file_map[filename][table_id]).c_str();
+	dlg.m_datadescription = std::get<1>(pDoc->_explore_status._file_map[filename][table_id]).c_str();
+	if (dlg.DoModal() == IDOK){
+		DataManager *data_manager = DataManager::GetInstance();
+		data_manager->AlterDataTable(filename, table_id, std::get<0>(pDoc->_explore_status._file_map[filename][table_id]),
+			std::wstring(dlg.m_datadescription.GetString()));
+	}
 }
 void CFileView::OnUpdateAddTable(CCmdUI* pCmdUI)
 {

@@ -113,6 +113,7 @@
   <ItemGroup>
     <ClInclude Include="..\chartdirector\include\ChartViewer.h" />
     <ClInclude Include="ClassView.h" />
+    <ClInclude Include="DescriptionConfigDlg.h" />
     <ClInclude Include="FileView.h" />
     <ClInclude Include="include\AsyncSerial.h" />
     <ClInclude Include="include\crc16wrapper.h" />
@@ -136,6 +137,7 @@
   <ItemGroup>
     <ClCompile Include="..\chartdirector\include\ChartViewer.cpp" />
     <ClCompile Include="ClassView.cpp" />
+    <ClCompile Include="DescriptionConfigDlg.cpp" />
     <ClCompile Include="FileView.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="NewMonitor.cpp" />

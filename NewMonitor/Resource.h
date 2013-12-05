@@ -85,6 +85,7 @@
 #define ID_DATA_DELTABLE                316
 #define IDD_SYSTEM_CONFIG               316
 #define IDU_FRESHEXPLORER               317
+#define IDD_EDITDESCRIPTION             317
 #define IDU_FRESHDATA                   318
 #define IDU_FRESHMAP                    320
 #define ID_SYSTEM_CONFIG                321
@@ -97,7 +98,9 @@
 #define IDC_COMBO3                      1007
 #define IDC_RADIOA4                     1008
 #define IDC_RADIOA1                     1009
+#define IDC_DATANAME                    1009
 #define IDC_RADIOA2                     1010
+#define IDC_DATADESCRIPTION             1010
 #define IDC_RADIOB1                     1011
 #define IDC_RADIOB2                     1012
 #define IDC_RADIOC1                     1013
@@ -131,9 +134,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        317
+#define _APS_NEXT_RESOURCE_VALUE        318
 #define _APS_NEXT_COMMAND_VALUE         32828
-#define _APS_NEXT_CONTROL_VALUE         1009
+#define _APS_NEXT_CONTROL_VALUE         1011
 #define _APS_NEXT_SYMED_VALUE           322
 #endif
 #endif
